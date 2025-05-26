@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { Moon, Sun } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { BookOpen, Heart, Save, Home, ChevronLeft, ChevronRight, Download, Settings as SettingsIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import './App.css';
@@ -238,23 +239,53 @@ const chapters = [
 ];
 
 const themes = {
-  classic: {
-    welcome: "from-amber-50 via-rose-50 to-indigo-50",
-    chapters: "from-slate-50 to-indigo-50",
-    buttons: "from-amber-500 to-orange-500",
-    accent: "amber"
+  retro: {
+    name: "Retro",
+    welcome: "from-amber-100 via-yellow-50 to-orange-50",
+    chapters: "from-amber-50 to-yellow-50",
+    buttons: "from-amber-600 to-orange-600",
+    accent: "amber",
+    font: "font-serif",
+    cardStyle: "border-2 border-amber-200 bg-opacity-90",
+    iconStyle: "sepia",
+    quoteStyle: "italic font-serif text-amber-800",
+    description: "Klasyczny styl z nutą nostalgii"
   },
-  ocean: {
-    welcome: "from-cyan-50 via-blue-50 to-indigo-50",
-    chapters: "from-blue-50 to-cyan-50",
-    buttons: "from-blue-500 to-cyan-500",
-    accent: "blue"
+  minimal: {
+    name: "Minimalistyczny",
+    welcome: "from-slate-100 via-gray-50 to-zinc-50",
+    chapters: "from-gray-50 to-slate-50",
+    buttons: "from-gray-600 to-slate-600",
+    accent: "gray",
+    font: "font-sans",
+    cardStyle: "border border-gray-100 bg-opacity-95",
+    iconStyle: "grayscale",
+    quoteStyle: "font-light text-gray-700",
+    description: "Prosty i elegancki design"
   },
-  forest: {
-    welcome: "from-emerald-50 via-green-50 to-lime-50",
+  artistic: {
+    name: "Artystyczny",
+    welcome: "from-violet-100 via-purple-50 to-fuchsia-50",
+    chapters: "from-purple-50 to-violet-50",
+    buttons: "from-purple-500 to-fuchsia-500",
+    accent: "purple",
+    font: "font-display",
+    cardStyle: "border-none shadow-lg bg-opacity-85",
+    iconStyle: "hue-rotate-30",
+    quoteStyle: "font-display italic text-purple-800",
+    description: "Kreatywny i ekspresyjny styl"
+  },
+  nature: {
+    name: "Naturalny",
+    welcome: "from-emerald-100 via-green-50 to-lime-50",
     chapters: "from-green-50 to-emerald-50",
-    buttons: "from-green-500 to-emerald-500",
-    accent: "emerald"
+    buttons: "from-emerald-600 to-green-600",
+    accent: "emerald",
+    font: "font-nature",
+    cardStyle: "border-2 border-emerald-100 bg-opacity-90",
+    iconStyle: "saturate-150",
+    quoteStyle: "font-nature text-emerald-800",
+    description: "Inspirowany naturą i spokojem"
   }
 };
 
@@ -284,28 +315,27 @@ const chapterQuotes = {
   "Dziedzictwo": "Prawdziwe dziedzictwo zostaje w sercach tych, którzy nas kochają."
 };
 
-function WelcomeScreen({ onStart }) {
+function WelcomeScreen({ onStart, theme }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-rose-50 to-indigo-50 flex items-center justify-center p-4">
-      <div className="max-w-2xl text-center">
-        <BookOpen className="w-20 h-20 mx-auto text-amber-600 mb-4" />
-        <h1 className="text-4xl font-serif text-gray-800 mb-4">
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4">
+      <div className="max-w-2xl mx-auto text-center">
+        <BookOpen className="w-20 h-20 mx-auto text-amber-600 dark:text-amber-400 mb-4" />
+        <h1 className="text-4xl font-serif text-gray-800 dark:text-white mb-4">
           Moja Historia
         </h1>
-        <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+        <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
           Witaj w Twoim osobistym pamiętniku. To miejsce, gdzie Twoje wspomnienia 
           staną się mostem między pokoleniami.
         </p>
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
-          <p className="text-gray-700 italic">
+        <div className="bg-white dark:bg-gray-800 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
+          <p className="text-gray-700 dark:text-gray-200 italic">
             "Każda historia ma w sobie magię. Twoja czeka na to, by została opowiedziana."
           </p>
         </div>
         <button
           onClick={onStart}
-          className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-8 py-4 
-                   rounded-full text-lg font-medium hover:shadow-lg transition-all 
-                   duration-300 transform hover:scale-105"
+          className={`bg-gradient-to-r ${theme.buttons} text-white px-8 py-4 
+                   rounded-full text-lg font-medium hover:shadow-lg transition-all`}
         >
           Rozpocznij Swoją Historię
         </button>
@@ -314,133 +344,81 @@ function WelcomeScreen({ onStart }) {
   );
 }
 
-function ChapterOverview({ onSelectChapter, answers, onOpenSettings }) {
-  const [activeChapter, setActiveChapter] = useState(null);
-  const [showQuestions, setShowQuestions] = useState(false);
-
-  const handleChapterSelect = (chapter) => {
-    setActiveChapter(chapter);
-    setShowQuestions(true);
-  };
-
-  const exportAllToPDF = () => {
-    const content = document.createElement('div');
-    content.innerHTML = `
-      <h1 style="text-align: center; margin-bottom: 40px">Moja Historia</h1>
-      ${chapters.map(chapter => `
-        <div style="margin-bottom: 40px">
-          <h2 style="color: #4B5563">${chapter.title}</h2>
-          <h3 style="color: #6B7280; margin-bottom: 20px">${chapter.subtitle}</h3>
-          ${chapter.questions.map((q, i) => `
-            <div style="margin-bottom: 20px">
-              <p style="font-weight: bold; color: #374151">${q}</p>
-              <p style="margin-left: 20px">${answers[`${chapter.id}-${i}`] || 'Brak odpowiedzi'}</p>
-            </div>
-          `).join('')}
-        </div>
-      `).join('')}
-    `;
-    
-    const opt = {
-      margin: 1,
-      filename: 'moja_historia.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(content).save();
-  };
-
+function ChapterOverview({ onSelectChapter, answers, theme }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 p-4 md:p-8 pb-24">
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4 md:p-8 pb-24">
       <div className="max-w-6xl mx-auto">
-        <button
-          onClick={onOpenSettings}
-          className="fixed top-4 right-4 p-2 bg-white/80 rounded-full shadow-lg
-                   hover:shadow-xl transition-all"
-        >
-          <SettingsIcon className="w-6 h-6 text-gray-600" />
-        </button>
-        
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <BookOpen className="w-16 h-16 mx-auto text-indigo-600 mb-4" />
-          <h1 className="text-3xl font-serif text-gray-800 mb-2">Twoja Historia</h1>
-          <p className="text-gray-600">Wybierz rozdział, który chcesz pisać</p>
+        <motion.div className="text-center mb-12">
+          <BookOpen className="w-16 h-16 mx-auto text-indigo-600 dark:text-indigo-400 mb-4" />
+          <h1 className="text-3xl font-serif text-gray-800 dark:text-white mb-2">
+            Twoja Historia
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            Wybierz rozdział, który chcesz pisać
+          </p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {chapters.map((chapter, index) => (
+          {chapters.map((chapter) => (
             <motion.div
               key={chapter.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
               className="relative group"
             >
               <motion.div
-                whileHover={{ scale: 1.02 }}
                 onClick={() => onSelectChapter(chapter)}
-                className={`bg-gradient-to-br ${chapter.color} p-6 rounded-2xl cursor-pointer
-                          shadow-lg hover:shadow-xl transition-all duration-300 relative`}
+                className="bg-white dark:bg-gray-800 p-6 rounded-2xl cursor-pointer 
+                         shadow-lg hover:shadow-xl transition-all duration-300 relative"
+                whileHover={{ scale: 1.02 }}
               >
-                <div className="flex items-center space-x-3 mb-4">
-                  <span className="text-2xl">{timelineIcons[chapter.title]}</span>
-                  <h3 className="text-xl font-semibold text-gray-800">{chapter.title}</h3>
-                </div>
-                <p className="text-gray-600 text-sm mb-4">{chapter.subtitle}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-500">
-                    {Object.keys(answers).filter(key => key.startsWith(`${chapter.id}-`)).length}/{chapter.questions.length} odpowiedzi
-                  </span>
-                  <div className="w-16 h-1 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
-                      className="h-1 bg-gradient-to-r from-green-400 to-green-500 rounded-full"
-                      style={{ 
-                        width: `${(Object.keys(answers).filter(key => 
-                          key.startsWith(`${chapter.id}-`)).length / chapter.questions.length) * 100}%` 
-                      }}
-                    />
+                {/* Card content */}
+                <div className="relative group-hover:opacity-0 transition-opacity duration-200">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <span className="text-2xl">{timelineIcons[chapter.title]}</span>
+                    <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
+                      {chapter.title}
+                    </h3>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                    {chapter.subtitle}
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {Object.keys(answers).filter(key => key.startsWith(`${chapter.id}-`)).length}/{chapter.questions.length} odpowiedzi
+                    </span>
+                    <div className="w-16 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div 
+                        className="h-1 bg-gradient-to-r from-green-400 to-green-500 rounded-full"
+                        style={{ 
+                          width: `${(Object.keys(answers).filter(key => 
+                            key.startsWith(`${chapter.id}-`)).length / chapter.questions.length) * 100}%` 
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Hover quote overlay */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                  className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-2xl 
-                           opacity-0 group-hover:opacity-100 transition-opacity duration-200
-                           flex items-center justify-center p-6"
-                >
-                  <p className="text-gray-700 italic text-center text-lg font-serif">
-                    "{chapterQuotes[chapter.title]}"
-                  </p>
-                </motion.div>
+                {/* Quote overlay */}
+                <div className="absolute inset-0 rounded-2xl flex items-center justify-center p-6 
+                             opacity-0 group-hover:opacity-100 transition-opacity duration-200 
+                             bg-white dark:bg-gray-800">
+                  <div className="max-w-[80%]">
+                    <span className="text-3xl mb-4 block text-center">💭</span>
+                    <p className="text-gray-800 dark:text-gray-200 italic text-center 
+                                text-lg font-serif leading-relaxed font-medium">
+                      "{chapterQuotes[chapter.title]}"
+                    </p>
+                  </div>
+                </div>
               </motion.div>
             </motion.div>
           ))}
-        </div>
-
-        <div className="mt-8 text-center">
-          <button
-            onClick={exportAllToPDF}
-            className="flex items-center space-x-2 px-6 py-3 bg-white rounded-full 
-                     shadow-lg hover:shadow-xl transition-all duration-300 mx-auto"
-          >
-            <Download className="w-5 h-5 text-indigo-600" />
-            <span className="text-gray-800">Eksportuj całą historię</span>
-          </button>
         </div>
       </div>
     </div>
   );
 }
 
-function QuestionInterface({ chapter, onBack, answers, setAnswers }) {
+function QuestionInterface({ chapter, onBack, answers, setAnswers, theme }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -478,8 +456,9 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers }) {
     html2pdf().set(opt).from(content).save();
   };
 
+  // Update the textarea section
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${chapter.color} p-4 md:p-8`}>
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header with navigation */}
         <div className="flex items-center justify-between mb-8">
@@ -523,23 +502,24 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers }) {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-2xl"
+          className="bg-white dark:bg-gray-800 backdrop-blur-sm rounded-3xl p-8 shadow-2xl"
         >
           <div className="flex items-start space-x-4 mb-6">
             <Heart className="w-6 h-6 text-rose-500 mt-1 flex-shrink-0" />
-            <h3 className="text-xl text-gray-800 leading-relaxed">
+            <h3 className="text-xl text-gray-800 dark:text-white leading-relaxed">
               {currentQuestion}
             </h3>
           </div>
 
           <textarea
-            value={answers[currentQuestionIndex] || ""}
+            value={answers[`${chapter.id}-${currentQuestionIndex}`] || ""}
             onChange={(e) => handleSave(e.target.value)}
             placeholder="Pozwól, by słowa płynęły z serca... Twoja historia jest wyjątkowa."
-            className="w-full h-64 p-4 bg-gray-50 rounded-2xl text-gray-700 
-                     placeholder-gray-400 resize-none focus:outline-none 
+            className="w-full min-h-[200px] p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl 
+                     text-gray-700 dark:text-gray-200 placeholder-gray-400 
+                     dark:placeholder-gray-500 focus:outline-none 
                      focus:ring-2 focus:ring-indigo-300 transition-all"
-            style={{ fontFamily: 'Georgia, serif' }}
+            style={{ resize: 'vertical' }}
           />
 
           {/* Navigation buttons */}
@@ -559,9 +539,9 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers }) {
                 Math.min(chapter.questions.length - 1, prev + 1)
               )}
               disabled={currentQuestionIndex === chapter.questions.length - 1}
-              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r 
-                       from-indigo-500 to-purple-500 text-white rounded-full 
-                       hover:shadow-lg disabled:opacity-50 transition-all"
+              className={`flex items-center space-x-2 px-6 py-3 bg-gradient-to-r 
+                       ${theme.buttons} text-white rounded-full 
+                       hover:shadow-lg disabled:opacity-50 transition-all`}
             >
               <span>Następne</span>
               <ChevronRight className="w-5 h-5" />
@@ -585,7 +565,7 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers }) {
 }
 
 // Rename the Settings component to SettingsPanel
-function SettingsPanel({ theme, setTheme, isOpen, onClose }) {
+function SettingsPanel({ theme, setTheme, isDarkMode, setIsDarkMode, isOpen, onClose }) {
   const copyShareLink = () => {
     const shareId = Math.random().toString(36).substring(2);
     const shareLink = `${window.location.origin}/share/${shareId}`;
@@ -600,34 +580,76 @@ function SettingsPanel({ theme, setTheme, isOpen, onClose }) {
       className={`fixed inset-0 z-50 flex items-center justify-center 
                  bg-black/50 backdrop-blur-sm ${isOpen ? '' : 'pointer-events-none'}`}
     >
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
-        <h2 className="text-2xl font-serif text-gray-800 mb-4">Ustawienia</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+        <h2 className="text-2xl font-serif text-gray-800 dark:text-white mb-4">Ustawienia</h2>
         
-        {/* Theme selection */}
+        {/* Theme Style Section */}
         <div className="mb-6">
-          <h3 className="text-lg text-gray-700 mb-3">Motyw kolorystyczny</h3>
-          <div className="grid grid-cols-3 gap-3">
-            {Object.entries(themes).map(([name, colors]) => (
+          <h3 className="text-lg text-gray-700 dark:text-gray-200 mb-3">Styl pamiętnika</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {Object.entries(themes).map(([name, style]) => (
               <button
                 key={name}
                 onClick={() => setTheme(name)}
-                className={`p-3 rounded-xl border-2 transition-all
-                          ${theme === name ? 'border-' + colors.accent + '-500' : 'border-gray-200'}`}
+                className={`p-4 rounded-xl border-2 transition-all
+                          ${theme === name ? 'border-' + style.accent + '-500' : 'border-gray-200'}
+                          hover:shadow-lg`}
               >
-                <div className={`h-8 rounded-lg bg-gradient-to-r ${colors.buttons}`} />
-                <span className="text-sm text-gray-600 mt-2 block capitalize">{name}</span>
+                <div className={`h-24 rounded-lg bg-gradient-to-br ${style.welcome} 
+                              ${style.cardStyle} p-3 mb-2`}>
+                  <div className={`text-2xl ${style.iconStyle}`}>📖</div>
+                  <div className={`text-sm ${style.font} mt-2 ${style.quoteStyle}`}>
+                    "Wspomnienia..."
+                  </div>
+                </div>
+                <span className={`text-base text-gray-800 block font-medium ${style.font}`}>
+                  {style.name}
+                </span>
+                <span className="text-xs text-gray-500 mt-1 block">
+                  {style.description}
+                </span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Sharing options */}
+        {/* Dark Mode Toggle Section */}
         <div className="mb-6">
-          <h3 className="text-lg text-gray-700 mb-3">Udostępnij historię</h3>
+          <h3 className="text-lg text-gray-700 dark:text-gray-200 mb-3">Tryb wyświetlania</h3>
+          <button
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="w-full flex items-center justify-between px-4 py-3 
+                     bg-gray-100 dark:bg-gray-700 rounded-xl 
+                     hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+          >
+            <div className="flex items-center space-x-3">
+              {isDarkMode ? (
+                <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+              ) : (
+                <Sun className="w-5 h-5 text-amber-500" />
+              )}
+              <span className="text-gray-700 dark:text-gray-200">
+                {isDarkMode ? 'Tryb nocny' : 'Tryb dzienny'}
+              </span>
+            </div>
+            <div className={`w-11 h-6 rounded-full p-1 transition-colors 
+                         ${isDarkMode ? 'bg-indigo-600' : 'bg-gray-300'}`}>
+              <motion.div
+                animate={{ x: isDarkMode ? 20 : 0 }}
+                className="w-4 h-4 bg-white rounded-full"
+              />
+            </div>
+          </button>
+        </div>
+
+        {/* Share Section */}
+        <div className="mb-6">
+          <h3 className="text-lg text-gray-700 dark:text-gray-200 mb-3">Udostępnij historię</h3>
           <button
             onClick={copyShareLink}
-            className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 
-                     rounded-lg text-gray-700 transition-colors"
+            className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 
+                     hover:bg-gray-200 dark:hover:bg-gray-600 
+                     rounded-lg text-gray-700 dark:text-gray-200 transition-colors"
           >
             Generuj link do udostępnienia
           </button>
@@ -645,38 +667,31 @@ function SettingsPanel({ theme, setTheme, isOpen, onClose }) {
   );
 }
 
-function Timeline({ chapters, activeChapter, onSelectChapter }) {
+function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm shadow-lg">
-      <div className="max-w-6xl mx-auto px-4 py-2 overflow-x-auto">
-        <div className="flex space-x-8 items-center min-w-max">
-          {chapters.map((chapter) => (
-            <motion.button
-              key={chapter.id}
-              onClick={() => onSelectChapter(chapter)}
-              className={`flex flex-col items-center group ${
-                activeChapter?.id === chapter.id ? 'scale-110' : ''
-              }`}
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className={`w-12 h-12 flex items-center justify-center rounded-full 
-                            text-2xl bg-gradient-to-br ${chapter.color} shadow-md 
-                            group-hover:shadow-lg transition-all`}>
-                {timelineIcons[chapter.title]}
-              </div>
-              <span className="text-xs text-gray-600 mt-1 whitespace-nowrap">
-                {chapter.title}
-              </span>
-              {activeChapter?.id === chapter.id && (
-                <motion.div
-                  layoutId="activeIndicator"
-                  className="w-full h-0.5 bg-gradient-to-r from-indigo-500 
-                           to-purple-500 mt-1"
-                />
-              )}
-            </motion.button>
-          ))}
+    <div className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-800/80 
+                    backdrop-blur-sm shadow-lg">
+      <div className="max-w-6xl mx-auto px-2 py-2">
+        <div className="overflow-x-auto scrollbar-hide">
+          <div className="flex space-x-4 md:space-x-8 items-center min-w-max px-2 mx-auto justify-center">
+            {chapters.map((chapter) => (
+              <motion.button
+                key={chapter.id}
+                onClick={() => onSelectChapter(chapter)}
+                className="flex flex-col items-center group"
+              >
+                <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center 
+                              rounded-full text-xl md:text-2xl bg-white dark:bg-gray-700 
+                              shadow-md group-hover:shadow-lg transition-all">
+                  {timelineIcons[chapter.title]}
+                </div>
+                <span className="text-[10px] md:text-xs text-gray-600 dark:text-gray-300 
+                              mt-1 whitespace-nowrap font-medium">
+                  {chapter.title}
+                </span>
+              </motion.button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -690,20 +705,41 @@ function App() {
     const savedAnswers = localStorage.getItem('diary-answers');
     return savedAnswers ? JSON.parse(savedAnswers) : {};
   });
+  
+  // Update theme initialization to use a valid theme key
   const [currentTheme, setCurrentTheme] = useState(() => {
     const saved = localStorage.getItem('diary-theme');
-    return saved || 'classic';
+    // Make sure we return a valid theme key that exists in our themes object
+    return themes[saved] ? saved : 'retro';
   });
+  
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Add after currentTheme state in App component
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('diary-dark-mode');
+    return saved ? JSON.parse(saved) : false;
+  });
 
   // Save answers when they change
   useEffect(() => {
     localStorage.setItem('diary-answers', JSON.stringify(answers));
   }, [answers]);
 
+  // Save theme when it changes
   useEffect(() => {
     localStorage.setItem('diary-theme', currentTheme);
   }, [currentTheme]);
+
+  // Add effect for dark mode
+  useEffect(() => {
+    localStorage.setItem('diary-dark-mode', JSON.stringify(isDarkMode));
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
   
   return (
     <>
@@ -716,7 +752,10 @@ function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <WelcomeScreen onStart={() => setView("chapters")} />
+            <WelcomeScreen 
+              onStart={() => setView("chapters")}
+              theme={themes[currentTheme]}
+            />
           </motion.div>
         )}
         
@@ -735,6 +774,7 @@ function App() {
               }}
               answers={answers} 
               onOpenSettings={() => setIsSettingsOpen(true)}
+              theme={themes[currentTheme]} // Add theme prop
             />
           </motion.div>
         )}
@@ -752,26 +792,41 @@ function App() {
               onBack={() => setView("chapters")}
               answers={answers}
               setAnswers={setAnswers}
+              theme={themes[currentTheme]} // Add theme prop
             />
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Globalny przycisk ustawień */}
+      <button
+        onClick={() => setIsSettingsOpen(true)}
+        className="fixed top-4 right-4 p-2 bg-white/80 rounded-full shadow-lg
+                 hover:shadow-xl transition-all z-50"
+      >
+        <SettingsIcon className="w-6 h-6 text-gray-600" />
+      </button>
+
       <SettingsPanel 
         theme={currentTheme}
         setTheme={setCurrentTheme}
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
       />
 
-      <Timeline 
-        chapters={chapters} 
-        activeChapter={currentChapter} 
-        onSelectChapter={(chapter) => {
-          setCurrentChapter(chapter);
-          setView("question");
-        }}
-      />
+      {view !== "welcome" && (
+        <Timeline 
+          chapters={chapters} 
+          activeChapter={currentChapter} 
+          onSelectChapter={(chapter) => {
+            setCurrentChapter(chapter);
+            setView("question");
+          }}
+          theme={themes[currentTheme]} // Add theme prop
+        />
+      )}
     </>
   );
 }
