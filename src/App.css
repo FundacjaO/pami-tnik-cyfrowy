@@ -47,3 +47,76 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Calendar Widget Styles */
+.calendar-widget .react-calendar {
+  width: 100%;
+  border: none;
+  background-color: transparent;
+}
+
+.calendar-widget .react-calendar__tile--active {
+  background: #3b82f6 !important;
+  color: white;
+}
+
+.calendar-widget .react-calendar__tile--now {
+  background: #dbeafe !important;
+}
+
+.dark .calendar-widget {
+  color: white;
+}
+
+.dark .calendar-widget .react-calendar__month-view__days__day {
+  color: #e5e7eb;
+}
+
+.dark .calendar-widget .react-calendar__navigation button {
+  color: #e5e7eb;
+}
+
+.dark .calendar-widget .react-calendar__month-view__days__day--weekend {
+  color: #f87171;
+}
+
+/* Settings button styles */
+.settings-button {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 50;
+  padding: 0.75rem;
+  border-radius: 9999px;
+  background-color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s;
+}
+
+.dark .settings-button {
+  background-color: #1f2937;
+}
+
+.settings-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Theme selection buttons */
+.theme-button {
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+.theme-button:hover {
+  transform: scale(1.02);
+}
+
+.theme-button.active {
+  border-color: #3b82f6;
+  transform: scale(1.05);
+}
+
+.dark .theme-button {
+  background-color: rgba(255, 255, 255, 0.1);
+}

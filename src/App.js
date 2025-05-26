@@ -1,9 +1,8 @@
-import { Moon, Sun } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { BookOpen, Heart, Save, Home, ChevronLeft, ChevronRight, Download, Settings as SettingsIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import './App.css';
-import html2pdf from 'html2pdf.js';
+import Settings from './components/Settings';
 
 const chapters = [
   {
@@ -180,6 +179,8 @@ const chapters = [
       "Jak wyrażasz wdzięczność na co dzień?",
       "Kto Cię najbardziej inspiruje?",
       "Za co chciałabyś/byś podziękować rodzinie?",
+      "Kto Cię najbardziej inspiruje?",
+      "Za co chciałabyś/byś podziękować rodzinie?",
       "Jakie miejsce jest dla Ciebie szczególne?",
       "Co nauczyło Cię bycia wdzięczną/ym?",
       "Jakie wartości są dla Ciebie ważne dzięki wdzięczności?",
@@ -238,57 +239,7 @@ const chapters = [
   }
 ];
 
-const themes = {
-  retro: {
-    name: "Retro",
-    welcome: "from-amber-100 via-yellow-50 to-orange-50",
-    chapters: "from-amber-50 to-yellow-50",
-    buttons: "from-amber-600 to-orange-600",
-    accent: "amber",
-    font: "font-serif",
-    cardStyle: "border-2 border-amber-200 bg-opacity-90",
-    iconStyle: "sepia",
-    quoteStyle: "italic font-serif text-amber-800",
-    description: "Klasyczny styl z nutą nostalgii"
-  },
-  minimal: {
-    name: "Minimalistyczny",
-    welcome: "from-slate-100 via-gray-50 to-zinc-50",
-    chapters: "from-gray-50 to-slate-50",
-    buttons: "from-gray-600 to-slate-600",
-    accent: "gray",
-    font: "font-sans",
-    cardStyle: "border border-gray-100 bg-opacity-95",
-    iconStyle: "grayscale",
-    quoteStyle: "font-light text-gray-700",
-    description: "Prosty i elegancki design"
-  },
-  artistic: {
-    name: "Artystyczny",
-    welcome: "from-violet-100 via-purple-50 to-fuchsia-50",
-    chapters: "from-purple-50 to-violet-50",
-    buttons: "from-purple-500 to-fuchsia-500",
-    accent: "purple",
-    font: "font-display",
-    cardStyle: "border-none shadow-lg bg-opacity-85",
-    iconStyle: "hue-rotate-30",
-    quoteStyle: "font-display italic text-purple-800",
-    description: "Kreatywny i ekspresyjny styl"
-  },
-  nature: {
-    name: "Naturalny",
-    welcome: "from-emerald-100 via-green-50 to-lime-50",
-    chapters: "from-green-50 to-emerald-50",
-    buttons: "from-emerald-600 to-green-600",
-    accent: "emerald",
-    font: "font-nature",
-    cardStyle: "border-2 border-emerald-100 bg-opacity-90",
-    iconStyle: "saturate-150",
-    quoteStyle: "font-nature text-emerald-800",
-    description: "Inspirowany naturą i spokojem"
-  }
-};
-
+// Dodaj do timelineIcons
 const timelineIcons = {
   "Korzenie": "🌱",
   "Pąki": "🌿",
@@ -299,9 +250,11 @@ const timelineIcons = {
   "Cienie": "🌑",
   "Wdzięczność": "🙏",
   "Korzenie Rodziny": "🌳",
-  "Dziedzictwo": "🕊️"
+  "Dziedzictwo": "🕊️",
+  "Kalendarz": "📅"
 };
 
+// Dodaj do chapterQuotes
 const chapterQuotes = {
   "Korzenie": "Każde dziecko nosi w sobie świat pełen marzeń.",
   "Pąki": "To, kim jesteś, zaczyna się od tego, w co wierzysz.",
@@ -312,7 +265,55 @@ const chapterQuotes = {
   "Cienie": "Siła człowieka mierzy się przez wyzwania, które pokonuje.",
   "Wdzięczność": "Mądrość to umiejętność słuchania serca i rozumu jednocześnie.",
   "Korzenie Rodziny": "Historia rodziny to opowieść pisana miłością pokoleń.",
-  "Dziedzictwo": "Prawdziwe dziedzictwo zostaje w sercach tych, którzy nas kochają."
+  "Dziedzictwo": "Prawdziwe dziedzictwo zostaje w sercach tych, którzy nas kochają.",
+  "Kalendarz": "Planowanie to pierwszy krok do tworzenia wspomnień."
+};
+
+const themes = {
+  classic: {
+    name: 'Klasyczny',
+    description: 'Elegancki i ponadczasowy',
+    welcome: 'from-amber-50 to-amber-100',
+    buttons: 'from-amber-500 to-amber-600',
+    accent: 'amber',
+    cardStyle: 'border-amber-100',
+    iconStyle: 'text-amber-600',
+    quoteStyle: 'text-amber-800',
+    font: 'font-serif'
+  },
+  modern: {
+    name: 'Nowoczesny',
+    description: 'Minimalistyczny i świeży',
+    welcome: 'from-blue-50 to-indigo-100',
+    buttons: 'from-blue-500 to-indigo-600',
+    accent: 'blue',
+    cardStyle: 'border-blue-100',
+    iconStyle: 'text-blue-600',
+    quoteStyle: 'text-blue-800',
+    font: 'font-sans'
+  },
+  retro: {
+    name: 'Retro',
+    description: 'Nostalgiczny i ciepły',
+    welcome: 'from-rose-50 to-rose-100',
+    buttons: 'from-rose-500 to-rose-600',
+    accent: 'rose',
+    cardStyle: 'border-rose-100',
+    iconStyle: 'text-rose-600',
+    quoteStyle: 'text-rose-800',
+    font: 'font-serif'
+  },
+  nature: {
+    name: 'Natura',
+    description: 'Organiczny i spokojny',
+    welcome: 'from-emerald-50 to-emerald-100',
+    buttons: 'from-emerald-500 to-emerald-600',
+    accent: 'emerald',
+    cardStyle: 'border-emerald-100',
+    iconStyle: 'text-emerald-600',
+    quoteStyle: 'text-emerald-800',
+    font: 'font-sans'
+  }
 };
 
 function WelcomeScreen({ onStart, theme }) {
@@ -436,11 +437,13 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme }) {
   const exportToPDF = () => {
     const content = document.createElement('div');
     content.innerHTML = `
-      <h1>${chapter.title}</h1>
+      <h1 style="color: #1f2937; font-size: 24px; margin-bottom: 20px;">${chapter.title}</h1>
       ${chapter.questions.map((q, i) => `
-        <div style="margin-bottom: 20px">
-          <h3>${q}</h3>
-          <p>${answers[i] || 'Brak odpowiedzi'}</p>
+        <div style="margin-bottom: 20px; padding: 10px;">
+          <h3 style="color: #4b5563; margin-bottom: 10px;">${q}</h3>
+          <p style="color: #1f2937; line-height: 1.6;">
+            ${answers[`${chapter.id}-${i}`] || 'Brak odpowiedzi'}
+          </p>
         </div>
       `).join('')}
     `;
@@ -450,7 +453,8 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme }) {
       filename: `${chapter.title}_historia.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+      pagebreak: { mode: 'avoid-all' }
     };
 
     html2pdf().set(opt).from(content).save();
@@ -564,109 +568,6 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme }) {
   );
 }
 
-// Rename the Settings component to SettingsPanel
-function SettingsPanel({ theme, setTheme, isDarkMode, setIsDarkMode, isOpen, onClose }) {
-  const copyShareLink = () => {
-    const shareId = Math.random().toString(36).substring(2);
-    const shareLink = `${window.location.origin}/share/${shareId}`;
-    navigator.clipboard.writeText(shareLink);
-    alert('Link skopiowany do schowka!');
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: isOpen ? 1 : 0, scale: isOpen ? 1 : 0.95 }}
-      className={`fixed inset-0 z-50 flex items-center justify-center 
-                 bg-black/50 backdrop-blur-sm ${isOpen ? '' : 'pointer-events-none'}`}
-    >
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-        <h2 className="text-2xl font-serif text-gray-800 dark:text-white mb-4">Ustawienia</h2>
-        
-        {/* Theme Style Section */}
-        <div className="mb-6">
-          <h3 className="text-lg text-gray-700 dark:text-gray-200 mb-3">Styl pamiętnika</h3>
-          <div className="grid grid-cols-2 gap-4">
-            {Object.entries(themes).map(([name, style]) => (
-              <button
-                key={name}
-                onClick={() => setTheme(name)}
-                className={`p-4 rounded-xl border-2 transition-all
-                          ${theme === name ? 'border-' + style.accent + '-500' : 'border-gray-200'}
-                          hover:shadow-lg`}
-              >
-                <div className={`h-24 rounded-lg bg-gradient-to-br ${style.welcome} 
-                              ${style.cardStyle} p-3 mb-2`}>
-                  <div className={`text-2xl ${style.iconStyle}`}>📖</div>
-                  <div className={`text-sm ${style.font} mt-2 ${style.quoteStyle}`}>
-                    "Wspomnienia..."
-                  </div>
-                </div>
-                <span className={`text-base text-gray-800 block font-medium ${style.font}`}>
-                  {style.name}
-                </span>
-                <span className="text-xs text-gray-500 mt-1 block">
-                  {style.description}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Dark Mode Toggle Section */}
-        <div className="mb-6">
-          <h3 className="text-lg text-gray-700 dark:text-gray-200 mb-3">Tryb wyświetlania</h3>
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="w-full flex items-center justify-between px-4 py-3 
-                     bg-gray-100 dark:bg-gray-700 rounded-xl 
-                     hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-          >
-            <div className="flex items-center space-x-3">
-              {isDarkMode ? (
-                <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-              ) : (
-                <Sun className="w-5 h-5 text-amber-500" />
-              )}
-              <span className="text-gray-700 dark:text-gray-200">
-                {isDarkMode ? 'Tryb nocny' : 'Tryb dzienny'}
-              </span>
-            </div>
-            <div className={`w-11 h-6 rounded-full p-1 transition-colors 
-                         ${isDarkMode ? 'bg-indigo-600' : 'bg-gray-300'}`}>
-              <motion.div
-                animate={{ x: isDarkMode ? 20 : 0 }}
-                className="w-4 h-4 bg-white rounded-full"
-              />
-            </div>
-          </button>
-        </div>
-
-        {/* Share Section */}
-        <div className="mb-6">
-          <h3 className="text-lg text-gray-700 dark:text-gray-200 mb-3">Udostępnij historię</h3>
-          <button
-            onClick={copyShareLink}
-            className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 
-                     hover:bg-gray-200 dark:hover:bg-gray-600 
-                     rounded-lg text-gray-700 dark:text-gray-200 transition-colors"
-          >
-            Generuj link do udostępnienia
-          </button>
-        </div>
-
-        <button
-          onClick={onClose}
-          className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg 
-                   hover:bg-gray-700 transition-colors"
-        >
-          Zamknij
-        </button>
-      </div>
-    </motion.div>
-  );
-}
-
 function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-800/80 
@@ -709,13 +610,16 @@ function App() {
   // Update theme initialization to use a valid theme key
   const [currentTheme, setCurrentTheme] = useState(() => {
     const saved = localStorage.getItem('diary-theme');
-    // Make sure we return a valid theme key that exists in our themes object
-    return themes[saved] ? saved : 'retro';
+    return saved || 'classic';
   });
   
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  // Zapisz wybrany motyw
+  useEffect(() => {
+    localStorage.setItem('diary-theme', currentTheme);
+  }, [currentTheme]);
 
-  // Add after currentTheme state in App component
+  // Dodaj stan dla ustawień jeśli nie istnieje
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('diary-dark-mode');
     return saved ? JSON.parse(saved) : false;
@@ -740,9 +644,29 @@ function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
-  
+
   return (
-    <>
+    <div>
+      {/* Dodaj przycisk ustawień, który będzie zawsze widoczny */}
+      <button
+        onClick={() => setIsSettingsOpen(true)}
+        className="fixed top-4 right-4 p-3 bg-white dark:bg-gray-800 
+                   rounded-full shadow-lg hover:shadow-xl transition-all z-50"
+        aria-label="Otwórz ustawienia"
+      >
+        <SettingsIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+      </button>
+
+      {/* Komponent ustawień */}
+      <Settings 
+        theme={isDarkMode ? 'dark' : 'light'}
+        toggleTheme={() => setIsDarkMode(!isDarkMode)}
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        currentTheme={currentTheme}
+        setCurrentTheme={setCurrentTheme}
+      />
+
       <AnimatePresence mode="wait">
         {view === "welcome" && (
           <motion.div
@@ -798,24 +722,6 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* Globalny przycisk ustawień */}
-      <button
-        onClick={() => setIsSettingsOpen(true)}
-        className="fixed top-4 right-4 p-2 bg-white/80 rounded-full shadow-lg
-                 hover:shadow-xl transition-all z-50"
-      >
-        <SettingsIcon className="w-6 h-6 text-gray-600" />
-      </button>
-
-      <SettingsPanel 
-        theme={currentTheme}
-        setTheme={setCurrentTheme}
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-      />
-
       {view !== "welcome" && (
         <Timeline 
           chapters={chapters} 
@@ -827,7 +733,7 @@ function App() {
           theme={themes[currentTheme]} // Add theme prop
         />
       )}
-    </>
+    </div>
   );
 }
 
