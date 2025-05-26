@@ -333,7 +333,7 @@ function WelcomeScreen({ onStart, theme }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <h1 className={`text-4xl ${theme.font} text-gray-800 dark:text-white mb-4`}>
+          <h1 className={`text-4xl ${theme.font} text-gray-800 dark:text-gray-100 mb-4`}>
             Moja Historia
           </h1>
         </motion.div>
@@ -343,7 +343,7 @@ function WelcomeScreen({ onStart, theme }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
         >
-          <p className={`text-lg ${theme.font} text-gray-600 dark:text-gray-300 mb-10 leading-relaxed`}>
+          <p className={`text-lg ${theme.font} text-gray-600 dark:text-gray-200 mb-10 leading-relaxed`}>
             Witaj w Twoim osobistym pamiętniku. To miejsce, gdzie Twoje wspomnienia 
             staną się mostem między pokoleniami.
           </p>
@@ -354,8 +354,8 @@ function WelcomeScreen({ onStart, theme }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.8 }}
         >
-          <div className="bg-white dark:bg-gray-800 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
-            <p className={`text-gray-700 dark:text-gray-200 italic ${theme.font === 'font-serif' ? '' : 'font-serif'}`}>
+          <div className="bg-white dark:bg-gray-800 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg border border-transparent dark:border-gray-700">
+            <p className={`text-gray-700 dark:text-gray-300 italic ${theme.font === 'font-serif' ? '' : 'font-serif'}`}>
               "Każda historia ma w sobie magię. Twoja czeka na to, by została opowiedziana."
             </p>
           </div>
@@ -385,10 +385,10 @@ function ChapterOverview({ onSelectChapter, answers, theme }) {
       <div className="max-w-6xl mx-auto">
         <motion.div className="text-center mb-12">
           <BookOpen className="w-16 h-16 mx-auto text-indigo-600 dark:text-indigo-400 mb-4" />
-          <h1 className="text-3xl font-serif text-gray-800 dark:text-white mb-2">
+          <h1 className="text-3xl font-serif text-gray-800 dark:text-gray-100 mb-2">
             Twoja Historia
           </h1>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-gray-600 dark:text-gray-400">
             Wybierz rozdział, który chcesz pisać
           </p>
         </motion.div>
@@ -402,27 +402,27 @@ function ChapterOverview({ onSelectChapter, answers, theme }) {
               <motion.div
                 onClick={() => onSelectChapter(chapter)}
                 className="bg-white dark:bg-gray-800 p-6 rounded-2xl cursor-pointer 
-                         shadow-lg hover:shadow-xl transition-all duration-300 relative"
+                         shadow-lg hover:shadow-xl transition-all duration-300 relative border border-transparent dark:border-gray-700 hover:dark:border-gray-600"
                 whileHover={{ scale: 1.02 }}
               >
                 {/* Card content */}
                 <div className="relative group-hover:opacity-0 transition-opacity duration-200">
                   <div className="flex items-center space-x-3 mb-4">
-                    <span className="text-2xl">{timelineIcons[chapter.title]}</span>
-                    <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
+                    <span className="text-2xl">{timelineIcons[chapter.title]}</span> {/* Icons are emojis, color is inherent */}
+                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
                       {chapter.title}
                     </h3>
                   </div>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
                     {chapter.subtitle}
                   </p>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="text-xs text-gray-500 dark:text-gray-500">
                       {Object.keys(answers).filter(key => key.startsWith(`${chapter.id}-`)).length}/{chapter.questions.length} odpowiedzi
                     </span>
                     <div className="w-16 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div 
-                        className="h-1 bg-gradient-to-r from-green-400 to-green-500 rounded-full"
+                        className="h-1 bg-gradient-to-r from-green-400 to-green-500 dark:from-green-500 dark:to-green-600 rounded-full"
                         style={{ 
                           width: `${(Object.keys(answers).filter(key => 
                             key.startsWith(`${chapter.id}-`)).length / chapter.questions.length) * 100}%` 
@@ -435,10 +435,10 @@ function ChapterOverview({ onSelectChapter, answers, theme }) {
                 {/* Quote overlay */}
                 <div className="absolute inset-0 rounded-2xl flex items-center justify-center p-6 
                              opacity-0 group-hover:opacity-100 transition-opacity duration-200 
-                             bg-white dark:bg-gray-800">
+                             bg-white dark:bg-slate-800"> {/* Changed dark bg for quote overlay */}
                   <div className="max-w-[80%]">
-                    <span className="text-3xl mb-4 block text-center">💭</span>
-                    <p className="text-gray-800 dark:text-gray-200 italic text-center 
+                    <span className="text-3xl mb-4 block text-center">💭</span> {/* Emoji */}
+                    <p className="text-gray-800 dark:text-gray-100 italic text-center 
                                 text-lg font-serif leading-relaxed font-medium">
                       "{chapterQuotes[chapter.title]}"
                     </p>
@@ -476,15 +476,15 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme, export
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-800"
+            className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors"
           >
-            <Home className="w-5 h-5" />
+            <Home className="w-5 h-5" /> {/* Will inherit color from parent span */}
             <span>Powrót do rozdziałów</span>
           </button>
           
           {isSaving && (
-            <div className="flex items-center space-x-2 text-green-600">
-              <Save className="w-4 h-4" />
+            <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
+              <Save className="w-4 h-4" /> {/* Will inherit color */}
               <span className="text-sm">Zapisuję...</span>
             </div>
           )}
@@ -493,14 +493,14 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme, export
         {/* Progress bar */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="text-2xl font-serif text-gray-800">{chapter.title}</h2>
-            <span className="text-sm text-gray-600">
+            <h2 className="text-2xl font-serif text-gray-800 dark:text-gray-100">{chapter.title}</h2>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
               Pytanie {currentQuestionIndex + 1} z {chapter.questions.length}
             </span>
           </div>
-          <div className="w-full h-2 bg-white/50 rounded-full">
+          <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
             <motion.div 
-              className="h-2 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"
+              className="h-2 bg-gradient-to-r from-indigo-400 to-purple-400 dark:from-indigo-500 dark:to-purple-500 rounded-full"
               initial={{ width: 0 }}
               animate={{ 
                 width: `${((currentQuestionIndex + 1) / chapter.questions.length) * 100}%` 
@@ -514,11 +514,11 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme, export
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-800 backdrop-blur-sm rounded-3xl p-8 shadow-2xl"
+          className="bg-white dark:bg-gray-800 backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl border border-transparent dark:border-gray-700"
         >
           <div className="flex items-start space-x-4 mb-6">
-            <Heart className="w-6 h-6 text-rose-500 mt-1 flex-shrink-0" />
-            <h3 className="text-xl text-gray-800 dark:text-white leading-relaxed">
+            <Heart className="w-6 h-6 text-rose-500 dark:text-rose-400 mt-1 flex-shrink-0" />
+            <h3 className="text-xl text-gray-800 dark:text-gray-100 leading-relaxed">
               {currentQuestion}
             </h3>
           </div>
@@ -527,10 +527,10 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme, export
             value={answers[`${chapter.id}-${currentQuestionIndex}`] || ""}
             onChange={(e) => handleSave(e.target.value)}
             placeholder="Pozwól, by słowa płynęły z serca... Twoja historia jest wyjątkowa."
-            className="w-full min-h-[200px] p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl 
-                     text-gray-700 dark:text-gray-200 placeholder-gray-400 
-                     dark:placeholder-gray-500 focus:outline-none 
-                     focus:ring-2 focus:ring-indigo-300 transition-all"
+            className="w-full min-h-[200px] p-4 bg-gray-50 dark:bg-slate-700 rounded-2xl 
+                     text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 
+                     focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-500 
+                     border border-gray-300 dark:border-slate-600 transition-all"
             style={{ resize: 'vertical' }}
           />
 
@@ -539,10 +539,10 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme, export
             <button
               onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
               disabled={currentQuestionIndex === 0}
-              className="flex items-center space-x-2 px-6 py-3 text-gray-600 
-                       hover:text-gray-800 disabled:opacity-50 transition-colors"
+              className="flex items-center space-x-2 px-6 py-3 text-gray-600 dark:text-gray-400 
+                       hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50 transition-colors"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-5 h-5" /> {/* Inherits color */}
               <span>Poprzednie</span>
             </button>
 
@@ -552,11 +552,11 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme, export
               )}
               disabled={currentQuestionIndex === chapter.questions.length - 1}
               className={`flex items-center space-x-2 px-6 py-3 bg-gradient-to-r 
-                       ${theme.buttons} text-white rounded-full 
+                       ${theme.buttons} text-white rounded-full  /* Assuming button text is white and has good contrast */
                        hover:shadow-lg disabled:opacity-50 transition-all`}
             >
               <span>Następne</span>
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5" /> {/* Inherits color */}
             </button>
           </div>
         </motion.div>
@@ -565,9 +565,9 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme, export
         <div className="mt-8 text-center">
           <button
             onClick={exportToPDF} // This will now call the function passed from App
-            className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800"
+            className="flex items-center space-x-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
           >
-            <Download className="w-5 h-5" />
+            <Download className="w-5 h-5" /> {/* Inherits color */}
             <span>Eksportuj Pamiętnik</span> 
           </button>
         </div>
@@ -613,19 +613,19 @@ function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
                   key={chapter.id}
                   onClick={() => onSelectChapter(chapter)}
                   className={`flex flex-col items-center group p-1 rounded-lg transition-colors duration-200 ease-in-out
-                              ${activeChapter && activeChapter.id === chapter.id ? 'bg-indigo-100 dark:bg-indigo-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                              ${activeChapter && activeChapter.id === chapter.id ? 'bg-indigo-100 dark:bg-indigo-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`} {/* Adjusted active dark bg */}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <div className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center 
-                                rounded-full text-xl md:text-2xl bg-white dark:bg-gray-600 
+                                rounded-full text-xl md:text-2xl bg-white dark:bg-gray-700  /* Darker icon bg */
                                 shadow-md group-hover:shadow-lg transition-all
-                                ${activeChapter && activeChapter.id === chapter.id ? `ring-2 ring-offset-1 ${theme.iconStyle.replace('text-', 'ring-')}` : ''}`}>
-                    {timelineIcons[chapter.title]}
+                                ${activeChapter && activeChapter.id === chapter.id ? `ring-2 ring-offset-1 ${theme.iconStyle.replace('text-', 'ring-')} dark:ring-offset-gray-800` : 'dark:border dark:border-gray-600'}`}> {/* Added border for non-active dark icons */}
+                    {timelineIcons[chapter.title]} {/* Emojis */}
                   </div>
-                  <span className={`text-[10px] md:text-xs text-gray-600 dark:text-gray-300 
+                  <span className={`text-[10px] md:text-xs text-gray-600 dark:text-gray-200 
                                 mt-1 whitespace-nowrap font-medium
-                                ${activeChapter && activeChapter.id === chapter.id ? `${theme.iconStyle}` : ''}`}>
+                                ${activeChapter && activeChapter.id === chapter.id ? `${theme.iconStyle} dark:text-indigo-300` : 'dark:text-gray-400 group-hover:dark:text-gray-200'}`}> {/* Adjusted active/hover text */}
                     {chapter.title}
                   </span>
                 </motion.button>
@@ -638,11 +638,11 @@ function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
                   whileTap={{ scale: 0.95 }}
                 >
                   <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center 
-                                rounded-full text-xl md:text-2xl bg-white dark:bg-gray-600 
-                                shadow-md group-hover:shadow-lg transition-all">
-                    <MoreHorizontal className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                                rounded-full text-xl md:text-2xl bg-white dark:bg-gray-700 /* Darker icon bg */
+                                shadow-md group-hover:shadow-lg transition-all dark:border dark:border-gray-600">
+                    <MoreHorizontal className="w-6 h-6 text-gray-500 dark:text-gray-300" />
                   </div>
-                  <span className="text-[10px] md:text-xs text-gray-600 dark:text-gray-300 
+                  <span className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400 group-hover:dark:text-gray-200
                                 mt-1 whitespace-nowrap font-medium">
                     Więcej
                   </span>
@@ -663,7 +663,7 @@ function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
             onClick={() => setIsTimelineModalOpen(false)} // Close on backdrop click
           >
             <motion.div
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-5 w-full max-w-md max-h-[80vh] flex flex-col"
+              className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-5 w-full max-w-md max-h-[80vh] flex flex-col border border-transparent dark:border-gray-700" // Changed bg, added border
               initial={{ scale: 0.9, opacity: 0.8 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -671,7 +671,7 @@ function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
               onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
             >
               <div className="flex justify-between items-center mb-4">
-                <h3 className={`text-xl font-semibold ${theme.font} text-gray-900 dark:text-white`}>
+                <h3 className={`text-xl font-semibold ${theme.font} text-gray-900 dark:text-gray-100`}>
                   Wybierz rozdział
                 </h3>
                 <button 
@@ -679,25 +679,25 @@ function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
                   className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                   aria-label="Zamknij modal"
                 >
-                  <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                 </button>
               </div>
-              <ul className="overflow-y-auto space-y-1 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
-                {chapters.map(chapter => (
-                  <li key={chapter.id} >
+              <ul className="overflow-y-auto space-y-1 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-slate-700">
+                {chapters.map(chapterItem => ( // Renamed to avoid conflict with outer 'chapter'
+                  <li key={chapterItem.id} >
                     <button
                       onClick={() => {
-                        onSelectChapter(chapter);
+                        onSelectChapter(chapterItem);
                         setIsTimelineModalOpen(false);
                       }}
                       className={`w-full flex items-center p-3 rounded-lg transition-colors duration-150 ease-in-out
-                                  ${activeChapter && activeChapter.id === chapter.id ? 'bg-indigo-100 dark:bg-indigo-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                                  ${activeChapter && activeChapter.id === chapterItem.id ? 'bg-indigo-100 dark:bg-indigo-600' : 'hover:bg-gray-100 dark:hover:bg-slate-700'}`}
                     >
-                      <span className={`text-2xl mr-4 ${activeChapter && activeChapter.id === chapter.id ? theme.iconStyle : 'text-gray-500 dark:text-gray-400'}`}>
-                        {timelineIcons[chapter.title]}
+                      <span className={`text-2xl mr-4 ${activeChapter && activeChapter.id === chapterItem.id ? theme.iconStyle : 'text-gray-500 dark:text-gray-300'}`}> {/* Emojis */}
+                        {timelineIcons[chapterItem.title]}
                       </span>
-                      <span className={`text-gray-800 dark:text-gray-100 ${theme.font} ${activeChapter && activeChapter.id === chapter.id ? 'font-semibold' : ''}`}>
-                        {chapter.title}
+                      <span className={`text-gray-800 dark:text-gray-100 ${theme.font} ${activeChapter && activeChapter.id === chapterItem.id ? 'font-semibold dark:text-white' : 'dark:text-gray-200'}`}>
+                        {chapterItem.title}
                       </span>
                     </button>
                   </li>
@@ -714,21 +714,62 @@ function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
 function App() {
   const [view, setView] = useState("welcome");
   const [currentChapter, setCurrentChapter] = useState(null);
-  const [answers, setAnswers] = useState(() => {
-    const savedAnswers = localStorage.getItem('diary-answers');
-    return savedAnswers ? JSON.parse(savedAnswers) : {};
-  });
-  
-  // Update theme initialization to use a valid theme key
-  const [currentTheme, setCurrentTheme] = useState(() => {
-    const saved = localStorage.getItem('diary-theme');
-    return saved || 'classic';
-  });
 
-  // Zapisz wybrany motyw
+  // Centralized loading logic for pamietnikAppStorage
+  const loadInitialState = () => {
+    try {
+      const savedAppData = localStorage.getItem('pamietnikAppStorage');
+      if (savedAppData) {
+        const appData = JSON.parse(savedAppData);
+        return {
+          answers: appData.answers || {},
+          currentTheme: appData.userPreferences?.theme || 'classic',
+          isDarkMode: appData.userPreferences?.darkMode !== undefined ? appData.userPreferences.darkMode : false,
+        };
+      }
+    } catch (error) {
+      console.error("Error parsing pamietnikAppStorage:", error);
+    }
+    // Default state if nothing in localStorage or parsing fails
+    return {
+      answers: {},
+      currentTheme: 'classic',
+      isDarkMode: false,
+    };
+  };
+
+  const initialState = loadInitialState();
+
+  const [answers, setAnswers] = useState(initialState.answers);
+  const [currentTheme, setCurrentTheme] = useState(initialState.currentTheme);
+  const [isDarkMode, setIsDarkMode] = useState(initialState.isDarkMode);
+  
+  // Consolidated useEffect for saving all relevant state to pamietnikAppStorage
   useEffect(() => {
-    localStorage.setItem('diary-theme', currentTheme);
-  }, [currentTheme]);
+    try {
+      const appDataToSave = {
+        answers: answers,
+        userPreferences: {
+          theme: currentTheme,
+          darkMode: isDarkMode,
+        },
+      };
+      localStorage.setItem('pamietnikAppStorage', JSON.stringify(appDataToSave));
+    } catch (error) {
+      console.error("Error saving to pamietnikAppStorage:", error);
+    }
+  }, [answers, currentTheme, isDarkMode]);
+
+  // Effect for applying dark mode class to HTML element (remains separate as it's a side effect of isDarkMode)
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    // We don't need to save isDarkMode to its own key anymore here.
+  }, [isDarkMode]);
+
 
   const exportFullPDF = () => {
     const content = document.createElement('div');
@@ -769,41 +810,25 @@ function App() {
 
   // Dodaj stan dla ustawień jeśli nie istnieje
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('diary-dark-mode');
-    return saved ? JSON.parse(saved) : false;
-  });
+  // isDarkMode is already initialized above using the new structure
 
-  // Save answers when they change
-  useEffect(() => {
-    localStorage.setItem('diary-answers', JSON.stringify(answers));
-  }, [answers]);
+  // The individual useEffect hooks for saving 'diary-answers', 'diary-theme', 
+  // and 'diary-dark-mode' are now removed and replaced by the consolidated one.
 
-  // Save theme when it changes
-  useEffect(() => {
-    localStorage.setItem('diary-theme', currentTheme);
-  }, [currentTheme]);
-
-  // Add effect for dark mode
-  useEffect(() => {
-    localStorage.setItem('diary-dark-mode', JSON.stringify(isDarkMode));
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
+  // The useEffect for applying the 'dark' class to documentElement based on isDarkMode
+  // is kept, as it's a direct side-effect of isDarkMode changing.
+  // The part about saving 'diary-dark-mode' within it has been removed.
 
   return (
     <div>
       {/* Dodaj przycisk ustawień, który będzie zawsze widoczny */}
       <button
         onClick={() => setIsSettingsOpen(true)}
-        className="fixed top-4 right-4 p-3 bg-white dark:bg-gray-800 
-                   rounded-full shadow-lg hover:shadow-xl transition-all z-50"
+        className="fixed top-4 right-4 p-3 bg-white dark:bg-slate-800 
+                   rounded-full shadow-lg hover:shadow-xl transition-all z-50 border border-transparent dark:border-gray-700"
         aria-label="Otwórz ustawienia"
       >
-        <SettingsIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+        <SettingsIcon className="w-6 h-6 text-gray-600 dark:text-gray-300" />
       </button>
 
       {/* Komponent ustawień */}

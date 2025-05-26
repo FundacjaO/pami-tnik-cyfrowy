@@ -27,61 +27,69 @@ const themes = {
 function Settings({ theme, toggleTheme, isOpen, onClose, currentTheme, setCurrentTheme }) {
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center 
-                    bg-black/50 backdrop-blur-sm ${isOpen ? '' : 'hidden'}`}>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-serif text-gray-800 dark:text-white mb-4">
+                    bg-black/60 backdrop-blur-md ${isOpen ? '' : 'hidden'}`}> {/* Darker backdrop */}
+      <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-slate-700">
+        <h2 className="text-2xl font-serif text-gray-800 dark:text-gray-100 mb-6 text-center"> {/* Centered and more margin */}
           Ustawienia
         </h2>
         
         {/* Sekcja wyboru motywu */}
         <div className="mb-8">
-          <h3 className="text-lg text-gray-700 dark:text-gray-200 mb-3">
+          <h3 className="text-lg font-medium text-gray-700 dark:text-gray-100 mb-3">
             Wygląd aplikacji
           </h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4"> {/* Increased gap */}
             {Object.entries(themes).map(([key, value]) => (
               <button
                 key={key}
                 onClick={() => setCurrentTheme(key)}
-                className={`p-4 rounded-xl transition-all ${
+                className={`p-4 rounded-xl transition-all duration-150 ease-in-out focus:outline-none border ${
                   currentTheme === key 
-                    ? 'ring-2 ring-blue-500 scale-105' 
-                    : 'hover:scale-105'
+                    ? 'ring-2 ring-blue-500 dark:ring-blue-400 scale-105 shadow-lg border-transparent' 
+                    : 'border-gray-300 dark:border-slate-600 hover:scale-105 hover:shadow-md hover:dark:ring-1 hover:dark:ring-slate-500'
                 } bg-gradient-to-br ${value.preview}`}
               >
-                <h4 className="font-medium mb-1">{value.name}</h4>
-                <p className="text-sm text-gray-600">{value.description}</p>
+                <h4 className="font-semibold mb-1 text-gray-900">{value.name}</h4> {/* Theme name always dark on light preview */}
+                <p className="text-sm text-gray-700">{value.description}</p> {/* Theme desc always dark on light preview */}
               </button>
             ))}
           </div>
         </div>
 
+        {/* Sekcja wyboru motywu */}
+        <hr className="border-gray-200 dark:border-slate-700 my-6" />
+
         {/* Sekcja trybu ciemnego */}
-        <div className="mb-6">
-          <h3 className="text-lg text-gray-700 dark:text-gray-200 mb-3">
+        <div className="mb-8"> {/* Increased margin */}
+          <h3 className="text-lg font-medium text-gray-700 dark:text-gray-100 mb-4"> {/* Increased margin-bottom */}
             Tryb wyświetlania
           </h3>
-          <button
-            onClick={toggleTheme}
-            className="w-full flex items-center justify-between px-4 py-3 
-                     bg-gray-100 dark:bg-gray-700 rounded-xl"
-          >
-            <div className="flex items-center space-x-3">
-              {theme === 'dark' ? (
-                <Moon className="w-5 h-5" />
-              ) : (
-                <Sun className="w-5 h-5" />
-              )}
-              <span>{theme === 'dark' ? 'Tryb jasny' : 'Tryb ciemny'}</span>
-            </div>
-          </button>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-800 dark:text-gray-200 font-medium">
+              Tryb Ciemny
+            </span>
+            <button
+              onClick={toggleTheme}
+              type="button"
+              className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-800
+                          ${theme === 'dark' ? 'bg-indigo-600 dark:bg-indigo-500' : 'bg-gray-200 dark:bg-slate-600'}`}
+              role="switch"
+              aria-checked={theme === 'dark'}
+            >
+              <span
+                className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out
+                            ${theme === 'dark' ? 'translate-x-6' : 'translate-x-1'}`} 
+              />
+            </button>
+          </div>
         </div>
 
         {/* Przycisk zamknięcia */}
         <button
           onClick={onClose}
-          className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg 
-                   hover:bg-gray-700 transition-colors"
+          className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg 
+                   hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 
+                   transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
         >
           Zamknij
         </button>
