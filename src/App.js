@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Heart, Save, Home, ChevronLeft, ChevronRight, Download, Settings as SettingsIcon, MoreHorizontal, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import html2pdf from 'html2pdf.js';
 import './App.css';
 import Settings from './components/Settings';
 
