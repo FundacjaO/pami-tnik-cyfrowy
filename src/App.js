@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, Heart, Save, Home, ChevronLeft, ChevronRight, Download, Settings as SettingsIcon } from "lucide-react";
+import { BookOpen, Heart, Save, Home, ChevronLeft, ChevronRight, Download, Settings as SettingsIcon, MoreHorizontal, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import './App.css';
 import Settings from './components/Settings';
@@ -318,28 +318,62 @@ const themes = {
 
 function WelcomeScreen({ onStart, theme }) {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 p-4">
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4 flex flex-col justify-center">
       <div className="max-w-2xl mx-auto text-center">
-        <BookOpen className="w-20 h-20 mx-auto text-amber-600 dark:text-amber-400 mb-4" />
-        <h1 className="text-4xl font-serif text-gray-800 dark:text-white mb-4">
-          Moja Historia
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
-          Witaj w Twoim osobistym pamiętniku. To miejsce, gdzie Twoje wspomnienia 
-          staną się mostem między pokoleniami.
-        </p>
-        <div className="bg-white dark:bg-gray-800 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
-          <p className="text-gray-700 dark:text-gray-200 italic">
-            "Każda historia ma w sobie magię. Twoja czeka na to, by została opowiedziana."
-          </p>
-        </div>
-        <button
-          onClick={onStart}
-          className={`bg-gradient-to-r ${theme.buttons} text-white px-8 py-4 
-                   rounded-full text-lg font-medium hover:shadow-lg transition-all`}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
-          Rozpocznij Swoją Historię
-        </button>
+          <BookOpen className={`w-20 h-20 mx-auto ${theme.iconStyle} mb-4`} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <h1 className={`text-4xl ${theme.font} text-gray-800 dark:text-white mb-4`}>
+            Moja Historia
+          </h1>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <p className={`text-lg ${theme.font} text-gray-600 dark:text-gray-300 mb-10 leading-relaxed`}>
+            Witaj w Twoim osobistym pamiętniku. To miejsce, gdzie Twoje wspomnienia 
+            staną się mostem między pokoleniami.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          <div className="bg-white dark:bg-gray-800 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
+            <p className={`text-gray-700 dark:text-gray-200 italic ${theme.font === 'font-serif' ? '' : 'font-serif'}`}>
+              "Każda historia ma w sobie magię. Twoja czeka na to, by została opowiedziana."
+            </p>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.0 }}
+        >
+          <button
+            onClick={onStart}
+            className={`bg-gradient-to-r ${theme.buttons} text-white px-8 py-4 
+                     rounded-full text-lg font-medium ${theme.font} hover:shadow-lg transition-all`}
+          >
+            Rozpocznij Swoją Historię
+          </button>
+        </motion.div>
       </div>
     </div>
   );
@@ -419,7 +453,7 @@ function ChapterOverview({ onSelectChapter, answers, theme }) {
   );
 }
 
-function QuestionInterface({ chapter, onBack, answers, setAnswers, theme }) {
+function QuestionInterface({ chapter, onBack, answers, setAnswers, theme, exportToPDF }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -432,32 +466,6 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme }) {
       [`${chapter.id}-${currentQuestionIndex}`]: answer
     }));
     setTimeout(() => setIsSaving(false), 500);
-  };
-
-  const exportToPDF = () => {
-    const content = document.createElement('div');
-    content.innerHTML = `
-      <h1 style="color: #1f2937; font-size: 24px; margin-bottom: 20px;">${chapter.title}</h1>
-      ${chapter.questions.map((q, i) => `
-        <div style="margin-bottom: 20px; padding: 10px;">
-          <h3 style="color: #4b5563; margin-bottom: 10px;">${q}</h3>
-          <p style="color: #1f2937; line-height: 1.6;">
-            ${answers[`${chapter.id}-${i}`] || 'Brak odpowiedzi'}
-          </p>
-        </div>
-      `).join('')}
-    `;
-    
-    const opt = {
-      margin: 1,
-      filename: `${chapter.title}_historia.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-      pagebreak: { mode: 'avoid-all' }
-    };
-
-    html2pdf().set(opt).from(content).save();
   };
 
   // Update the textarea section
@@ -556,11 +564,11 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme }) {
         {/* Export button */}
         <div className="mt-8 text-center">
           <button
-            onClick={exportToPDF}
+            onClick={exportToPDF} // This will now call the function passed from App
             className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800"
           >
             <Download className="w-5 h-5" />
-            <span>Eksportuj rozdział</span>
+            <span>Eksportuj Pamiętnik</span> 
           </button>
         </div>
       </div>
@@ -569,33 +577,137 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme }) {
 }
 
 function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
+  const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
+  const [showMoreButton, setShowMoreButton] = useState(false);
+  const [visibleChapters, setVisibleChapters] = useState(chapters);
+
+  const MAX_VISIBLE_CHAPTERS_MOBILE = 4; // Number of chapters to show before "More"
+  const CHAPTER_THRESHOLD_FOR_MORE_BUTTON = 5; // Min chapters to trigger "More" button
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.matchMedia("(max-width: 768px)").matches;
+      if (isMobile && chapters.length > CHAPTER_THRESHOLD_FOR_MORE_BUTTON) {
+        setShowMoreButton(true);
+        setVisibleChapters(chapters.slice(0, MAX_VISIBLE_CHAPTERS_MOBILE));
+      } else {
+        setShowMoreButton(false);
+        setVisibleChapters(chapters);
+      }
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [chapters]);
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-800/80 
-                    backdrop-blur-sm shadow-lg">
-      <div className="max-w-6xl mx-auto px-2 py-2">
-        <div className="overflow-x-auto scrollbar-hide">
-          <div className="flex space-x-4 md:space-x-8 items-center min-w-max px-2 mx-auto justify-center">
-            {chapters.map((chapter) => (
-              <motion.button
-                key={chapter.id}
-                onClick={() => onSelectChapter(chapter)}
-                className="flex flex-col items-center group"
-              >
-                <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center 
-                              rounded-full text-xl md:text-2xl bg-white dark:bg-gray-700 
-                              shadow-md group-hover:shadow-lg transition-all">
-                  {timelineIcons[chapter.title]}
-                </div>
-                <span className="text-[10px] md:text-xs text-gray-600 dark:text-gray-300 
-                              mt-1 whitespace-nowrap font-medium">
-                  {chapter.title}
-                </span>
-              </motion.button>
-            ))}
+    <>
+      <div className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-800/80 
+                      backdrop-blur-sm shadow-lg z-30"> {/* Ensure timeline is above content but below modal */}
+        <div className="max-w-6xl mx-auto px-2 py-2">
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex space-x-4 md:space-x-6 items-center min-w-max px-2 mx-auto justify-center">
+              {visibleChapters.map((chapter) => (
+                <motion.button
+                  key={chapter.id}
+                  onClick={() => onSelectChapter(chapter)}
+                  className={`flex flex-col items-center group p-1 rounded-lg transition-colors duration-200 ease-in-out
+                              ${activeChapter && activeChapter.id === chapter.id ? 'bg-indigo-100 dark:bg-indigo-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center 
+                                rounded-full text-xl md:text-2xl bg-white dark:bg-gray-600 
+                                shadow-md group-hover:shadow-lg transition-all
+                                ${activeChapter && activeChapter.id === chapter.id ? `ring-2 ring-offset-1 ${theme.iconStyle.replace('text-', 'ring-')}` : ''}`}>
+                    {timelineIcons[chapter.title]}
+                  </div>
+                  <span className={`text-[10px] md:text-xs text-gray-600 dark:text-gray-300 
+                                mt-1 whitespace-nowrap font-medium
+                                ${activeChapter && activeChapter.id === chapter.id ? `${theme.iconStyle}` : ''}`}>
+                    {chapter.title}
+                  </span>
+                </motion.button>
+              ))}
+              {showMoreButton && (
+                <motion.button
+                  onClick={() => setIsTimelineModalOpen(true)}
+                  className="flex flex-col items-center group p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center 
+                                rounded-full text-xl md:text-2xl bg-white dark:bg-gray-600 
+                                shadow-md group-hover:shadow-lg transition-all">
+                    <MoreHorizontal className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                  </div>
+                  <span className="text-[10px] md:text-xs text-gray-600 dark:text-gray-300 
+                                mt-1 whitespace-nowrap font-medium">
+                    Więcej
+                  </span>
+                </motion.button>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <AnimatePresence>
+        {isTimelineModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsTimelineModalOpen(false)} // Close on backdrop click
+          >
+            <motion.div
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-5 w-full max-w-md max-h-[80vh] flex flex-col"
+              initial={{ scale: 0.9, opacity: 0.8 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className={`text-xl font-semibold ${theme.font} text-gray-900 dark:text-white`}>
+                  Wybierz rozdział
+                </h3>
+                <button 
+                  onClick={() => setIsTimelineModalOpen(false)} 
+                  className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Zamknij modal"
+                >
+                  <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                </button>
+              </div>
+              <ul className="overflow-y-auto space-y-1 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+                {chapters.map(chapter => (
+                  <li key={chapter.id} >
+                    <button
+                      onClick={() => {
+                        onSelectChapter(chapter);
+                        setIsTimelineModalOpen(false);
+                      }}
+                      className={`w-full flex items-center p-3 rounded-lg transition-colors duration-150 ease-in-out
+                                  ${activeChapter && activeChapter.id === chapter.id ? 'bg-indigo-100 dark:bg-indigo-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                    >
+                      <span className={`text-2xl mr-4 ${activeChapter && activeChapter.id === chapter.id ? theme.iconStyle : 'text-gray-500 dark:text-gray-400'}`}>
+                        {timelineIcons[chapter.title]}
+                      </span>
+                      <span className={`text-gray-800 dark:text-gray-100 ${theme.font} ${activeChapter && activeChapter.id === chapter.id ? 'font-semibold' : ''}`}>
+                        {chapter.title}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -612,11 +724,48 @@ function App() {
     const saved = localStorage.getItem('diary-theme');
     return saved || 'classic';
   });
-  
+
   // Zapisz wybrany motyw
   useEffect(() => {
     localStorage.setItem('diary-theme', currentTheme);
   }, [currentTheme]);
+
+  const exportFullPDF = () => {
+    const content = document.createElement('div');
+    let html = '';
+
+    chapters.forEach(chapter => {
+      html += `<div class="pdf-chapter-container" style="page-break-after: always;">`; // Hint for page break
+      html += `<h1 style="color: #1f2937; font-size: 28px; margin-bottom: 25px; text-align: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">${chapter.title}</h1>`;
+      html += `<h2 style="color: #4b5563; font-size: 20px; margin-bottom: 20px; text-align: center;">${chapter.subtitle}</h2>`;
+      
+      chapter.questions.forEach((q, i) => {
+        const answer = answers[`${chapter.id}-${i}`] || 'Brak odpowiedzi';
+        html += `
+          <div style="margin-bottom: 25px; padding: 15px; border-left: 3px solid #d1d5db; background-color: #f9fafb;">
+            <h3 style="color: #374151; font-size: 18px; margin-bottom: 8px; font-weight: 600;">${q}</h3>
+            <p style="color: #1f2937; line-height: 1.7; font-size: 16px; white-space: pre-wrap; word-wrap: break-word;">
+              ${answer.replace(/\n/g, '<br>')}
+            </p>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    });
+
+    content.innerHTML = html;
+    
+    const opt = {
+      margin: [1, 0.8, 1, 0.8], // top, right, bottom, left
+      filename: 'Moj_Pamietnik.pdf',
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, logging: true, letterRendering: true },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'], before: '.pdf-chapter-container' }
+    };
+
+    html2pdf().set(opt).from(content).save();
+  };
 
   // Dodaj stan dla ustawień jeśli nie istnieje
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -716,7 +865,8 @@ function App() {
               onBack={() => setView("chapters")}
               answers={answers}
               setAnswers={setAnswers}
-              theme={themes[currentTheme]} // Add theme prop
+              theme={themes[currentTheme]}
+              exportToPDF={exportFullPDF} // Pass the new export function
             />
           </motion.div>
         )}
