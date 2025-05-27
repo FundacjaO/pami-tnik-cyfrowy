@@ -1,0 +1,2555 @@
+
+--- index.css ---
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+--- tailwind.config.js ---
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}",
+  ],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(-5px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' }
+        }
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.2s ease-out'
+      }
+    },
+  },
+  plugins: [],
+}
+
+--- webpack.config.js ---
+module.exports = {
+  ignoreWarnings: [
+    {
+      module: /html2pdf\.js/,
+      message: /Failed to parse source map/,
+    },
+  ],
+};
+
+--- public\index.html ---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>React App</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>
+
+
+--- src\App.css ---
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Calendar Widget Styles */
+.calendar-widget .react-calendar {
+  width: 100%;
+  border: none;
+  background-color: transparent;
+}
+
+.calendar-widget .react-calendar__tile--active {
+  background: #3b82f6 !important;
+  color: white;
+}
+
+.calendar-widget .react-calendar__tile--now {
+  background: #dbeafe !important;
+}
+
+.dark .calendar-widget {
+  color: white;
+}
+
+.dark .calendar-widget .react-calendar__month-view__days__day {
+  color: #e5e7eb;
+}
+
+.dark .calendar-widget .react-calendar__navigation button {
+  color: #e5e7eb;
+}
+
+.dark .calendar-widget .react-calendar__month-view__days__day--weekend {
+  color: #f87171;
+}
+
+/* Settings button styles */
+.settings-button {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 50;
+  padding: 0.75rem;
+  border-radius: 9999px;
+  background-color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s;
+}
+
+.dark .settings-button {
+  background-color: #1f2937;
+}
+
+.settings-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Theme selection buttons */
+.theme-button {
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+.theme-button:hover {
+  transform: scale(1.02);
+}
+
+.theme-button.active {
+  border-color: #3b82f6;
+  transform: scale(1.05);
+}
+
+.dark .theme-button {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+
+--- src\App.js ---
+import { useState, useEffect } from 'react';
+import { 
+  BookOpen, 
+  Heart, 
+  Save, 
+  Home, 
+  ChevronLeft, 
+  ChevronRight, 
+  Download, 
+  Settings as SettingsIcon,
+  MoreHorizontal,
+  X 
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import html2pdf from 'html2pdf.js';
+import './App.css';
+import Settings from './components/Settings';
+
+const chapters = [
+  {
+    id: 1,
+    title: "Korzenie",
+    subtitle: "Dzieciństwo i Dom Rodzinny (0-12 lat)",
+    color: "from-amber-100 to-orange-100",
+    questions: [
+      "Gdzie i kiedy się urodziłaś/eś?",
+      "Jak wyglądał Twój dom rodzinny?",
+      "Kto mieszkał z Tobą w domu?",
+      "Jakie masz najstarsze wspomnienie?",
+      "Co najbardziej lubiłaś/eś robić jako dziecko?",
+      "Kto był Twoim najlepszym przyjacielem?",
+      "Jakie zabawy najbardziej Ci się podobały?",
+      "Jakie potrawy lubiłaś/eś jeść w dzieciństwie?",
+      "Jak wspominasz swoje rodzeństwo?",
+      "Czy miałaś/eś ulubioną książkę lub bajkę?",
+      "Jak wyglądały Twoje święta i uroczystości rodzinne?",
+      "Czy pamiętasz jakieś szczególne wydarzenie z dzieciństwa?",
+      "Jakie wartości wyniosłaś/eś z domu rodzinnego?",
+      "Kto był Twoim wzorem lub autorytetem?",
+      "Jak opisałabyś/byś swoją rodzinę jednym zdaniem?"
+    ]
+  },
+  {
+    id: 2,
+    title: "Pąki",
+    subtitle: "Nastoletnie lata (13-19 lat)",
+    color: "from-green-100 to-emerald-100",
+    questions: [
+      "Jak wyglądała Twoja szkoła i klasa?",
+      "Kim były Twoje największe przyjaciółki/przyjaciele?",
+      "Co najbardziej lubiłaś/eś robić w wolnym czasie?",
+      "Jakie były Twoje największe marzenia jako nastolatka/nastolatek?",
+      "Czy pamiętasz pierwszą zakochaną osobę?",
+      "Jak radziłaś/eś sobie z trudnościami w tym wieku?",
+      "Jakie były Twoje ulubione przedmioty szkolne?",
+      "Co najbardziej Cię inspirowało?",
+      "Czy miałaś/eś jakiś talent lub hobby?",
+      "Jak spędzałaś/eś wakacje nastoletnie?",
+      "Czy pamiętasz jakieś ważne wydarzenie z tego okresu?",
+      "Co chciałaś/eś osiągnąć, gdy dorośniesz?",
+      "Jakie wartości były dla Ciebie ważne wtedy?",
+      "Jakie były Twoje relacje z rodzicami w tym czasie?",
+      "Co chciałabyś/byś powiedzieć swojej nastoletniej wersji?"
+    ]
+  },
+  {
+    id: 3,
+    title: "Serce",
+    subtitle: "Miłość i Związki (18-30 lat)",
+    color: "from-rose-100 to-pink-100",
+    questions: [
+      "Jak poznałaś/eś pierwszą miłość?",
+      "Co dla Ciebie znaczyła miłość w tym czasie?",
+      "Jakie były Twoje ulubione sposoby spędzania czasu z partnerem/partnerką?",
+      "Jak wspominasz pierwsze rozstanie?",
+      "Czy miałaś/eś jakiś wyjątkowy moment związkowy?",
+      "Co nauczyłaś/eś się dzięki swoim relacjom?",
+      "Jak opisałabyś/byś swoje ideały miłości wtedy?",
+      "Czy pamiętasz swoje pierwsze wspólne wakacje?",
+      "Jak radziłaś/eś sobie z konfliktami w związku?",
+      "Co było dla Ciebie najważniejsze w partnerze/partnerce?",
+      "Jak wyglądały Twoje relacje z rodziną partnera/partnerki?",
+      "Czy pamiętasz jakieś zabawne lub wzruszające wydarzenie?",
+      "Jakie są Twoje ulubione wspomnienia z tamtego okresu?",
+      "Jakie rady dałabyś/byś młodszym osobom o miłości?",
+      "Jakie wartości chciałaś/eś przekazać w swoich relacjach?"
+    ]
+  },
+  {
+    id: 4,
+    title: "Marzenia",
+    subtitle: "Cele i Aspiracje (20-35 lat)",
+    color: "from-purple-100 to-violet-100",
+    questions: [
+      "Jakie marzenia miałaś/eś jako młoda/y dorosła/y?",
+      "Czy pamiętasz swoje pierwsze plany na przyszłość?",
+      "Co sprawiało, że czułaś/eś się pełna/en energii i pasji?",
+      "Jakie wyzwania napotkałaś/eś na drodze do swoich celów?",
+      "Kto Cię wspierał w realizacji marzeń?",
+      "Czy była jakaś decyzja, którą szczególnie zapamiętałaś/eś?",
+      "Jakie umiejętności chciałaś/eś zdobyć?",
+      "Jakie role zawodowe lub społeczne Cię interesowały?",
+      "Co zrealizowałaś/eś z tych planów?",
+      "Jakie były Twoje największe sukcesy?",
+      "Co Cię motywowało, gdy było trudno?",
+      "Czy miałaś/eś wzór do naśladowania?",
+      "Jakie rady dałabyś/byś osobie marzącej o podobnych celach?",
+      "Czy marzenia się zmieniły z biegiem lat?",
+      "Co teraz uważasz za najważniejsze?"
+    ]
+  },
+  {
+    id: 5,
+    title: "Macierzyństwo",
+    subtitle: "Zostanie Rodzicem (25-45 lat)",
+    color: "from-pink-100 to-fuchsia-100",
+    questions: [
+      "Jak dowiedziałaś/eś się o ciąży/zostaniu rodzicem?",
+      "Jakie były Twoje pierwsze emocje jako rodzic?",
+      "Jak wyglądał dzień narodzin dziecka?",
+      "Co było dla Ciebie najtrudniejsze w rodzicielstwie?",
+      "Jak wspominasz pierwsze chwile z dzieckiem?",
+      "Co najbardziej lubiłaś/eś robić z dzieckiem?",
+      "Jakie rytuały tworzyłaś/eś z rodziną?",
+      "Czy pamiętasz jakieś zabawne lub wzruszające momenty?",
+      "Jakie były Twoje największe obawy?",
+      "Jak radziłaś/eś sobie z trudnościami?",
+      "Co nauczyło Cię rodzicielstwo?",
+      "Jak zmieniło się Twoje życie?",
+      "Co chciałabyś/byś przekazać swojemu dziecku?",
+      "Jak opisałabyś/byś swoje relacje rodzinne?",
+      "Co jest dla Ciebie najważniejsze w roli rodzica?"
+    ]
+  },
+  {
+    id: 6,
+    title: "Codzienność",
+    subtitle: "Życie Rodzinne i Praca (30-50 lat)",
+    color: "from-yellow-100 to-amber-100",
+    questions: [
+      "Jak wyglądał Twój typowy dzień?",
+      "Co najbardziej lubiłaś/eś robić dla siebie?",
+      "Jak spędzałaś/eś czas z rodziną?",
+      "Jak radziłaś/eś sobie z obowiązkami?",
+      "Czy miałaś/eś swoje rytuały lub hobby?",
+      "Jakie wydarzenie szczególnie utkwiło Ci w pamięci?",
+      "Co dawało Ci radość w codziennym życiu?",
+      "Jak wyglądała Twoja praca?",
+      "Jak łączyłaś/eś życie zawodowe z prywatnym?",
+      "Czy pamiętasz jakieś ważne decyzje z tego okresu?",
+      "Co było dla Ciebie wsparciem?",
+      "Jakie relacje pielęgnowałaś/eś?",
+      "Co Cię najbardziej zaskoczyło w tym czasie?",
+      "Jakie marzenia spełniłaś/eś?",
+      "Co chciałabyś/byś zrobić inaczej?"
+    ]
+  },
+  {
+    id: 7,
+    title: "Cienie",
+    subtitle: "Wyzwania i Trudne Chwile",
+    color: "from-slate-100 to-gray-100",
+    questions: [
+      "Jakie trudności najbardziej Cię ukształtowały?",
+      "Jak radziłaś/eś sobie z przeciwnościami?",
+      "Czy była sytuacja, która zmieniła Twoje życie?",
+      "Jakie wsparcie Ci pomogło?",
+      "Co nauczyłaś/eś się dzięki trudnościom?",
+      "Jak zmieniłaś/eś się po tych doświadczeniach?",
+      "Czy pamiętasz moment przełomu?",
+      "Co dało Ci siłę, by iść dalej?",
+      "Jak patrzysz teraz na te chwile?",
+      "Czy masz swoje sposoby na radzenie sobie z trudnościami?",
+      "Co chciałabyś/byś powiedzieć osobom w podobnej sytuacji?",
+      "Jakie wartości pomogły Ci przetrwać?",
+      "Czy potrafisz wskazać, co było najtrudniejsze?",
+      "Jakie lekcje z tych doświadczeń przekazujesz innym?",
+      "Co teraz uważasz za swój największy sukces mimo trudności?"
+    ]
+  },
+  {
+    id: 8,
+    title: "Wdzięczność",
+    subtitle: "Ludzie i Doświadczenia (50+ lat)",
+    color: "from-lime-100 to-green-100",
+    questions: [
+      "Za co czujesz największą wdzięczność w życiu?",
+      "Jakie osoby najbardziej Ci pomogły?",
+      "Jakie chwile uważasz za najpiękniejsze?",
+      "Co było dla Ciebie darem?",
+      "Jak wyrażasz wdzięczność na co dzień?",
+      "Kto Cię najbardziej inspiruje?",
+      "Za co chciałabyś/byś podziękować rodzinie?",
+      "Kto Cię najbardziej inspiruje?",
+      "Za co chciałabyś/byś podziękować rodzinie?",
+      "Jakie miejsce jest dla Ciebie szczególne?",
+      "Co nauczyło Cię bycia wdzięczną/ym?",
+      "Jakie wartości są dla Ciebie ważne dzięki wdzięczności?",
+      "Jakie wydarzenia przypominają Ci o szczęściu?",
+      "Jakie doświadczenia chciałabyś/byś zatrzymać na zawsze?",
+      "Co byś powiedziała/powiedział młodszym pokoleniom o wdzięczności?",
+      "Jakie drobne rzeczy dają Ci radość?",
+      "Co czyni Twoje życie pełnym?"
+    ]
+  },
+  {
+    id: 9,
+    title: "Korzenie Rodziny",
+    subtitle: "Dziedzictwo Przodków",
+    color: "from-orange-100 to-amber-100",
+    questions: [
+      "Kim byli Twoi rodzice?",
+      "Jakie wartości przekazali Ci rodzice?",
+      "Co pamiętasz o dziadkach?",
+      "Jakie rodzinne tradycje pielęgnujesz?",
+      "Jakie historie rodzinne chcesz zachować?",
+      "Czego nauczyłaś/eś się od przodków?",
+      "Jak wyglądały relacje w rodzinie?",
+      "Czy znasz rodzinne zwyczaje?",
+      "Co chcesz przekazać następnym pokoleniom?",
+      "Jakie wydarzenia rodzinne są dla Ciebie ważne?",
+      "Jak wspominasz swoje korzenie?",
+      "Co cenisz w historii swojej rodziny?",
+      "Jakie wartości są dla Ciebie spuścizną rodzinną?",
+      "Jak dbasz o pamięć rodziny?",
+      "Jak chcesz być zapamiętana/y przez potomków?"
+    ]
+  },
+  {
+    id: 10,
+    title: "Dziedzictwo",
+    subtitle: "Przesłanie dla Przyszłych Pokoleń (60+ lat)",
+    color: "from-indigo-100 to-blue-100",
+    questions: [
+      "Jakie wartości są dla Ciebie najważniejsze?",
+      "Co chciałabyś/byś przekazać przyszłym pokoleniom?",
+      "Jakie są Twoje życzenia dla rodziny?",
+      "Jak chciałabyś/byś być zapamiętana/y?",
+      "Co uważasz za swój największy dorobek?",
+      "Jakie przesłanie zostawiasz światu?",
+      "Co sprawia, że czujesz się spełniona/y?",
+      "Jakie momenty życia chcesz zachować w pamięci?",
+      "Co uważasz za swoją misję?",
+      "Jakie rady dałabyś/byś młodym?",
+      "Co chcesz jeszcze zrobić lub powiedzieć?",
+      "Jak widzisz swoją rolę w historii rodziny?",
+      "Co jest dla Ciebie najważniejsze na tym etapie życia?",
+      "Jak wyrażasz miłość do bliskich?",
+      "Co daje Ci nadzieję i siłę?"
+    ]
+  }
+];
+
+// Dodaj do timelineIcons
+const timelineIcons = {
+  "Korzenie": "🌱",
+  "Pąki": "🌿",
+  "Serce": "❤️",
+  "Marzenia": "✨",
+  "Macierzyństwo": "👩‍👧",
+  "Codzienność": "🌸",
+  "Cienie": "🌑",
+  "Wdzięczność": "🙏",
+  "Korzenie Rodziny": "🌳",
+  "Dziedzictwo": "🕊️",
+  "Kalendarz": "📅"
+};
+
+// Dodaj do chapterQuotes
+const chapterQuotes = {
+  "Korzenie": "Każde dziecko nosi w sobie świat pełen marzeń.",
+  "Pąki": "To, kim jesteś, zaczyna się od tego, w co wierzysz.",
+  "Serce": "Miłość to najpiękniejsza podróż, na którą można się wybrać.",
+  "Marzenia": "Nigdy nie rezygnuj z marzeń, bo one kształtują przyszłość.",
+  "Macierzyństwo": "Macierzyństwo to serce domu i źródło bezwarunkowej miłości.",
+  "Codzienność": "W zwykłych chwilach kryje się niezwykłe piękno życia.",
+  "Cienie": "Siła człowieka mierzy się przez wyzwania, które pokonuje.",
+  "Wdzięczność": "Mądrość to umiejętność słuchania serca i rozumu jednocześnie.",
+  "Korzenie Rodziny": "Historia rodziny to opowieść pisana miłością pokoleń.",
+  "Dziedzictwo": "Prawdziwe dziedzictwo zostaje w sercach tych, którzy nas kochają.",
+  "Kalendarz": "Planowanie to pierwszy krok do tworzenia wspomnień."
+};
+
+const themes = {
+  classic: {
+    name: 'Klasyczny',
+    description: 'Elegancki i ponadczasowy',
+    welcome: 'from-amber-50 to-amber-100',
+    buttons: 'from-amber-500 to-amber-600',
+    accent: 'amber',
+    cardStyle: 'border-amber-100',
+    iconStyle: 'text-amber-600',
+    quoteStyle: 'text-amber-800',
+    font: 'font-serif'
+  },
+  modern: {
+    name: 'Nowoczesny',
+    description: 'Minimalistyczny i świeży',
+    welcome: 'from-blue-50 to-indigo-100',
+    buttons: 'from-blue-500 to-indigo-600',
+    accent: 'blue',
+    cardStyle: 'border-blue-100',
+    iconStyle: 'text-blue-600',
+    quoteStyle: 'text-blue-800',
+    font: 'font-sans'
+  },
+  retro: {
+    name: 'Retro',
+    description: 'Nostalgiczny i ciepły',
+    welcome: 'from-rose-50 to-rose-100',
+    buttons: 'from-rose-500 to-rose-600',
+    accent: 'rose',
+    cardStyle: 'border-rose-100',
+    iconStyle: 'text-rose-600',
+    quoteStyle: 'text-rose-800',
+    font: 'font-serif'
+  },
+  nature: {
+    name: 'Natura',
+    description: 'Organiczny i spokojny',
+    welcome: 'from-emerald-50 to-emerald-100',
+    buttons: 'from-emerald-500 to-emerald-600',
+    accent: 'emerald',
+    cardStyle: 'border-emerald-100',
+    iconStyle: 'text-emerald-600',
+    quoteStyle: 'text-emerald-800',
+    font: 'font-sans'
+  }
+};
+
+function WelcomeScreen({ onStart, theme }) {
+  // Existing states
+  const [author, setAuthor] = useState(() => localStorage.getItem('diary-author') || '');
+  const [recipient, setRecipient] = useState(() => localStorage.getItem('diary-recipient') || '');
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState(false);
+
+  // New states for gift feature
+  const [isGift, setIsGift] = useState(() => localStorage.getItem('diary-isGift') === 'true');
+  const [dedication, setDedication] = useState(() => localStorage.getItem('diary-dedication') || '');
+  const [giftDate, setGiftDate] = useState(() => localStorage.getItem('diary-giftDate') || '');
+  const [recipientEmail, setRecipientEmail] = useState(() => localStorage.getItem('diary-recipientEmail') || '');
+
+  // Save to localStorage whenever values change
+  useEffect(() => {
+    localStorage.setItem('diary-author', author);
+    localStorage.setItem('diary-recipient', recipient);
+    localStorage.setItem('diary-isGift', isGift);
+    localStorage.setItem('diary-dedication', dedication);
+    localStorage.setItem('diary-giftDate', giftDate);
+    localStorage.setItem('diary-recipientEmail', recipientEmail);
+  }, [author, recipient, isGift, dedication, giftDate, recipientEmail]);
+
+  const handleStart = () => {
+    if (author.trim() && recipient.trim()) {
+      // Save gift data if enabled
+      if (isGift) {
+        // Here you would typically send this to your backend
+        const giftData = {
+          isGift,
+          dedication: dedication.trim(),
+          giftDate,
+          recipientEmail: recipientEmail.trim()
+        };
+        console.log('Gift data:', giftData);
+      }
+
+      setShowWelcomeMessage(true);
+      setTimeout(() => {
+        onStart();
+      }, 3000);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4 flex flex-col justify-center">
+      <div className="max-w-2xl mx-auto text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <BookOpen className={`w-20 h-20 mx-auto ${theme.iconStyle} mb-4`} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <h1 className={`text-4xl ${theme.font} text-gray-800 dark:text-gray-100 mb-2 font-bold`}>
+            Pamiętniki Rodzinne
+          </h1>
+          <p className={`text-xl ${theme.font} text-gray-600 dark:text-gray-300 mb-8`}>
+            Kroniki pokolenia
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <p className={`text-lg ${theme.font} text-gray-600 dark:text-gray-200 mb-6 leading-relaxed`}>
+            Witaj w Twoim osobistym pamiętniku. To miejsce, gdzie Twoje wspomnienia 
+            staną się mostem między pokoleniami.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          <div className="bg-white dark:bg-gray-800 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg border border-transparent dark:border-gray-700">
+            <p className={`text-gray-700 dark:text-gray-300 italic ${theme.font === 'font-serif' ? '' : 'font-serif'} text-xl`}>
+              "Twoja opowieść. Ich pamiątka."
+            </p>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.0 }}
+          className="space-y-6"
+        >
+          {!showWelcomeMessage ? (
+            <>
+              <div className="space-y-4">
+                {/* Existing author and recipient inputs */}
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 text-left mb-2">
+                    💡 Jak się nazywasz, autorze tej historii?
+                  </label>
+                  <input
+                    type="text"
+                    value={author}
+                    onChange={(e) => setAuthor(e.target.value)}
+                    placeholder="np. Jan Kowalski"
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 
+                             border border-gray-200 dark:border-gray-600 
+                             focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                             text-gray-800 dark:text-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 text-left mb-2">
+                    💡 Dla kogo ją tworzysz?
+                  </label>
+                  <input
+                    type="text"
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                    placeholder="np. Dla mojej córki Agi"
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 
+                             border border-gray-200 dark:border-gray-600 
+                             focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                             text-gray-800 dark:text-gray-100"
+                  />
+                </div>
+
+                {/* Gift checkbox */}
+                <div className="pt-2">
+                  <label className="flex items-center space-x-3 text-gray-700 dark:text-gray-300 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isGift}
+                      onChange={(e) => setIsGift(e.target.checked)}
+                      className="w-5 h-5 rounded border-gray-300 text-blue-500 
+                               focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                    />
+                    <span>🎁 To będzie prezent</span>
+                  </label>
+                </div>
+
+                {/* Gift options */}
+                <AnimatePresence>
+                  {isGift && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="space-y-4 pt-4"
+                    >
+                      <div>
+                        <label className="block text-gray-700 dark:text-gray-300 text-left mb-2">
+                          ✨ Dedykacja
+                        </label>
+                        <textarea
+                          value={dedication}
+                          onChange={(e) => setDedication(e.target.value)}
+                          placeholder="np. Dla mojej kochanej córki Agnieszki..."
+                          className="w-full px-4 py-3 rounded-xl bg-rose-50 dark:bg-gray-700 
+                                   border border-gray-200 dark:border-gray-600 
+                                   focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400
+                                   text-gray-800 dark:text-gray-100 min-h-[100px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 dark:text-gray-300 text-left mb-2">
+                          📅 Data wręczenia
+                        </label>
+                        <input
+                          type="date"
+                          value={giftDate}
+                          onChange={(e) => setGiftDate(e.target.value)}
+                          min={new Date().toISOString().split('T')[0]}
+                          className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 
+                                   border border-gray-200 dark:border-gray-600 
+                                   focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                                   text-gray-800 dark:text-gray-100"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 dark:text-gray-300 text-left mb-2">
+                          📧 E-mail odbiorcy (opcjonalnie)
+                        </label>
+                        <input
+                          type="email"
+                          value={recipientEmail}
+                          onChange={(e) => setRecipientEmail(e.target.value)}
+                          placeholder="np. agnieszka@email.com"
+                          className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 
+                                   border border-gray-200 dark:border-gray-600 
+                                   focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                                   text-gray-800 dark:text-gray-100"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <button
+                onClick={handleStart}
+                disabled={!author.trim() || !recipient.trim()}
+                className={`bg-gradient-to-r ${theme.buttons} text-white px-8 py-4 
+                         rounded-full text-lg font-medium ${theme.font} 
+                         hover:shadow-lg transition-all
+                         disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                Rozpocznij Swoją Historię
+              </button>
+            </>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-xl text-gray-700 dark:text-gray-200"
+            >
+              To będzie historia {author} dla {recipient}. Zaczynamy...
+            </motion.div>
+          )}
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+function ChapterOverview({ onSelectChapter, answers, theme }) {
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4 md:p-8 pb-24">
+      <div className="max-w-6xl mx-auto">
+        <motion.div className="text-center mb-12">
+          <BookOpen className="w-16 h-16 mx-auto text-indigo-600 dark:text-indigo-400 mb-4" />
+          <h1 className="text-3xl font-serif text-gray-800 dark:text-gray-100 mb-2">
+            Twoja Historia
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Wybierz rozdział, który chcesz pisać
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {chapters.map((chapter) => (
+            <motion.div
+              key={chapter.id}
+              className="relative group"
+            >
+              <motion.div
+                onClick={() => onSelectChapter(chapter)}
+                className="bg-white dark:bg-gray-800 p-6 rounded-2xl cursor-pointer 
+                         shadow-lg hover:shadow-xl transition-all duration-300 relative border border-transparent dark:border-gray-700 hover:dark:border-gray-600"
+                whileHover={{ scale: 1.02 }}
+              >
+                {/* Card content */}
+                <div className="relative group-hover:opacity-0 transition-opacity duration-200">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <span className="text-2xl">{timelineIcons[chapter.title]}</span> {/* Icons are emojis, color is inherent */}
+                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+                      {chapter.title}
+                    </h3>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                    {chapter.subtitle}
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500 dark:text-gray-500">
+                      {Object.keys(answers).filter(key => key.startsWith(`${chapter.id}-`)).length}/{chapter.questions.length} odpowiedzi
+                    </span>
+                    <div className="w-16 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div 
+                        className="h-1 bg-gradient-to-r from-green-400 to-green-500 dark:from-green-500 dark:to-green-600 rounded-full"
+                        style={{ 
+                          width: `${(Object.keys(answers).filter(key => 
+                            key.startsWith(`${chapter.id}-`)).length / chapter.questions.length) * 100}%` 
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quote overlay */}
+                <div className="absolute inset-0 rounded-2xl flex items-center justify-center p-6 
+                             opacity-0 group-hover:opacity-100 transition-opacity duration-200 
+                             bg-white dark:bg-slate-800"> {/* Changed dark bg for quote overlay */}
+                  <div className="max-w-[80%]">
+                    <span className="text-3xl mb-4 block text-center">💭</span> {/* Emoji */}
+                    <p className="text-gray-800 dark:text-gray-100 italic text-center 
+                                text-lg font-serif leading-relaxed font-medium">
+                      "{chapterQuotes[chapter.title]}"
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QuestionInterface({ chapter, onBack, answers, setAnswers, theme, exportToPDF }) {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const currentQuestion = chapter.questions[currentQuestionIndex];
+
+  const handleSave = (answer) => {
+    setIsSaving(true);
+    setAnswers(prev => ({
+      ...prev,
+      [`${chapter.id}-${currentQuestionIndex}`]: answer
+    }));
+    setTimeout(() => setIsSaving(false), 500);
+  };
+
+  // Update the textarea section
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header with navigation */}
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={onBack}
+            className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors"
+          >
+            <Home className="w-5 h-5" /> {/* Will inherit color from parent span */}
+            <span>Powrót do rozdziałów</span>
+          </button>
+          
+          {isSaving && (
+            <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
+              <Save className="w-4 h-4" /> {/* Will inherit color */}
+              <span className="text-sm">Zapisuję...</span>
+            </div>
+          )}
+        </div>
+
+        {/* Progress bar */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-2xl font-serif text-gray-800 dark:text-gray-100">{chapter.title}</h2>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Pytanie {currentQuestionIndex + 1} z {chapter.questions.length}
+            </span>
+          </div>
+          <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+            <motion.div 
+              className="h-2 bg-gradient-to-r from-indigo-400 to-purple-400 dark:from-indigo-500 dark:to-purple-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ 
+                width: `${((currentQuestionIndex + 1) / chapter.questions.length) * 100}%` 
+              }}
+              transition={{ duration: 0.5 }}
+            />
+          </div>
+        </div>
+
+        {/* Question card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white dark:bg-gray-800 backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl border border-transparent dark:border-gray-700"
+        >
+          <div className="flex items-start space-x-4 mb-6">
+            <Heart className="w-6 h-6 text-rose-500 dark:text-rose-400 mt-1 flex-shrink-0" />
+            <h3 className="text-xl text-gray-800 dark:text-gray-100 leading-relaxed">
+              {currentQuestion}
+            </h3>
+          </div>
+
+          <textarea
+            value={answers[`${chapter.id}-${currentQuestionIndex}`] || ""}
+            onChange={(e) => handleSave(e.target.value)}
+            placeholder="Pozwól, by słowa płynęły z serca... Twoja historia jest wyjątkowa."
+            className="w-full min-h-[200px] p-4 bg-gray-50 dark:bg-slate-700 rounded-2xl 
+                     text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 
+                     focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-500 
+                     border border-gray-300 dark:border-slate-600 transition-all"
+            style={{ resize: 'vertical' }}
+          />
+
+          {/* Navigation buttons */}
+          <div className="flex justify-between mt-6">
+            <button
+              onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
+              disabled={currentQuestionIndex === 0}
+              className="flex items-center space-x-2 px-6 py-3 text-gray-600 dark:text-gray-400 
+                       hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50 transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" /> {/* Inherits color */}
+              <span>Poprzednie</span>
+            </button>
+
+            <button
+              onClick={() => setCurrentQuestionIndex(prev => 
+                Math.min(chapter.questions.length - 1, prev + 1)
+              )}
+              disabled={currentQuestionIndex === chapter.questions.length - 1}
+              className={`flex items-center space-x-2 px-6 py-3 bg-gradient-to-r 
+                       ${theme.buttons} text-white rounded-full  /* Assuming button text is white and has good contrast */
+                       hover:shadow-lg disabled:opacity-50 transition-all`}
+            >
+              <span>Następne</span>
+              <ChevronRight className="w-5 h-5" /> {/* Inherits color */}
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Export button */}
+        <div className="mt-8 text-center">
+          <button
+            onClick={exportToPDF}
+            className="inline-flex items-center space-x-2 px-6 py-3 bg-white dark:bg-gray-800 
+                       rounded-full shadow-md hover:shadow-lg transition-all text-gray-600 
+                       dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
+          >
+            <Download className="w-5 h-5" />
+            <span>Eksportuj Pamiętnik</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
+  const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
+  const [showMoreButton, setShowMoreButton] = useState(false);
+  const [visibleChapters, setVisibleChapters] = useState(chapters);
+
+  const MAX_VISIBLE_CHAPTERS_MOBILE = 4; // Number of chapters to show before "More"
+  const CHAPTER_THRESHOLD_FOR_MORE_BUTTON = 5; // Min chapters to trigger "More" button
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.matchMedia("(max-width: 768px)").matches;
+      if (isMobile && chapters.length > CHAPTER_THRESHOLD_FOR_MORE_BUTTON) {
+        setShowMoreButton(true);
+        setVisibleChapters(chapters.slice(0, MAX_VISIBLE_CHAPTERS_MOBILE));
+      } else {
+        setShowMoreButton(false);
+        setVisibleChapters(chapters);
+      }
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [chapters]);
+
+  return (
+    <>
+      <div className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-800/80 
+                      backdrop-blur-sm shadow-lg z-30"> {/* Ensure timeline is above content but below modal */}
+        <div className="max-w-6xl mx-auto px-2 py-2">
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex space-x-4 md:space-x-6 items-center min-w-max px-2 mx-auto justify-center">
+              {visibleChapters.map((chapter) => (
+                <motion.button
+                  key={chapter.id}
+                  onClick={() => onSelectChapter(chapter)}
+                  className={`flex flex-col items-center group p-1 rounded-lg transition-colors duration-200 ease-in-out
+                              ${activeChapter && activeChapter.id === chapter.id ? 'bg-indigo-100 dark:bg-indigo-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`} 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center 
+                                rounded-full text-xl md:text-2xl bg-white dark:bg-gray-700  /* Darker icon bg */
+                                shadow-md group-hover:shadow-lg transition-all
+                                ${activeChapter && activeChapter.id === chapter.id ? `ring-2 ring-offset-1 ${theme.iconStyle.replace('text-', 'ring-')} dark:ring-offset-gray-800` : 'dark:border dark:border-gray-600'}`}> {/* Added border for non-active dark icons */}
+                    {timelineIcons[chapter.title]} {/* Emojis */}
+                  </div>
+                  <span className={`text-[10px] md:text-xs text-gray-600 dark:text-gray-200 
+                                mt-1 whitespace-nowrap font-medium
+                                ${activeChapter && activeChapter.id === chapter.id ? `${theme.iconStyle} dark:text-indigo-300` : 'dark:text-gray-400 group-hover:dark:text-gray-200'}`}> {/* Adjusted active/hover text */}
+                    {chapter.title}
+                  </span>
+                </motion.button>
+              ))}
+              {showMoreButton && (
+                <motion.button
+                  onClick={() => setIsTimelineModalOpen(true)}
+                  className="flex flex-col items-center group p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center 
+                                rounded-full text-xl md:text-2xl bg-white dark:bg-gray-700 /* Darker icon bg */
+                                shadow-md group-hover:shadow-lg transition-all dark:border dark:border-gray-600">
+                    <MoreHorizontal className="w-6 h-6 text-gray-500 dark:text-gray-300" />
+                  </div>
+                  <span className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400 group-hover:dark:text-gray-200
+                                mt-1 whitespace-nowrap font-medium">
+                    Więcej
+                  </span>
+                </motion.button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isTimelineModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsTimelineModalOpen(false)} // Close on backdrop click
+          >
+            <motion.div
+              className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-5 w-full max-w-md max-h-[80vh] flex flex-col border border-transparent dark:border-gray-700" // Changed bg, added border
+              initial={{ scale: 0.9, opacity: 0.8 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className={`text-xl font-semibold ${theme.font} text-gray-900 dark:text-gray-100`}>
+                  Wybierz rozdział
+                </h3>
+                <button 
+                  onClick={() => setIsTimelineModalOpen(false)} 
+                  className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Zamknij modal"
+                >
+                  <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                </button>
+              </div>
+              <ul className="overflow-y-auto space-y-1 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-slate-700">
+                {chapters.map(chapterItem => ( // Renamed to avoid conflict with outer 'chapter'
+                  <li key={chapterItem.id} >
+                    <button
+                      onClick={() => {
+                        onSelectChapter(chapterItem);
+                        setIsTimelineModalOpen(false);
+                      }}
+                      className={`w-full flex items-center p-3 rounded-lg transition-colors duration-150 ease-in-out
+                                  ${activeChapter && activeChapter.id === chapterItem.id ? 'bg-indigo-100 dark:bg-indigo-600' : 'hover:bg-gray-100 dark:hover:bg-slate-700'}`}
+                    >
+                      <span className={`text-2xl mr-4 ${activeChapter && activeChapter.id === chapterItem.id ? theme.iconStyle : 'text-gray-500 dark:text-gray-300'}`}> {/* Emojis */}
+                        {timelineIcons[chapterItem.title]}
+                      </span>
+                      <span className={`text-gray-800 dark:text-gray-100 ${theme.font} ${activeChapter && activeChapter.id === chapterItem.id ? 'font-semibold dark:text-white' : 'dark:text-gray-200'}`}>
+                        {chapterItem.title}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+function App() {
+  // 1. Load initial state
+  const loadInitialState = () => {
+    try {
+      const savedAppData = localStorage.getItem('pamietnikAppStorage');
+      if (savedAppData) {
+        const appData = JSON.parse(savedAppData);
+        return {
+          answers: appData.answers || {},
+          currentTheme: appData.userPreferences?.theme || 'classic',
+          isDarkMode: appData.userPreferences?.darkMode !== undefined 
+            ? appData.userPreferences.darkMode 
+            : false,
+        };
+      }
+    } catch (error) {
+      console.error("Error parsing pamietnikAppStorage:", error);
+    }
+    return {
+      answers: {},
+      currentTheme: 'classic',
+      isDarkMode: false,
+    };
+  };
+
+  // 2. Initialize states
+  const initialState = loadInitialState();
+  const [view, setView] = useState("welcome");
+  const [currentChapter, setCurrentChapter] = useState(null);
+  const [answers, setAnswers] = useState(initialState.answers);
+  const [currentTheme, setCurrentTheme] = useState(initialState.currentTheme);
+  const [isDarkMode, setIsDarkMode] = useState(initialState.isDarkMode);
+  const [theme, setTheme] = useState(isDarkMode ? 'dark' : 'light');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false); // Only declare once!
+
+  // 3. Effects
+  useEffect(() => {
+    setTheme(isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
+
+  useEffect(() => {
+    try {
+      const appDataToSave = {
+        answers: answers,
+        userPreferences: {
+          theme: currentTheme,
+          darkMode: isDarkMode,
+        },
+      };
+      localStorage.setItem('pamietnikAppStorage', JSON.stringify(appDataToSave));
+    } catch (error) {
+      console.error("Error saving to pamietnikAppStorage:", error);
+    }
+  }, [answers, currentTheme, isDarkMode]);
+
+  // 4. PDF Export function - keep this name consistent
+  const exportFullPDF = async () => {
+    // Create container for PDF content
+    const content = document.createElement('div');
+    content.style.padding = '20px';
+    
+    // Add title
+    content.innerHTML = `
+      <h1 style="text-align: center; color: #1f2937; font-size: 24px; margin-bottom: 20px;">
+        Mój Pamiętnik
+      </h1>
+    `;
+
+    // Add chapters and their content
+    chapters.forEach(chapter => {
+      const chapterDiv = document.createElement('div');
+      chapterDiv.style.marginBottom = '30px';
+      chapterDiv.innerHTML = `
+        <div style="page-break-before: always;">
+          <h2 style="color: #1f2937; font-size: 20px; margin-bottom: 15px;">
+            ${chapter.title}
+          </h2>
+          <h3 style="color: #4b5563; font-size: 16px; margin-bottom: 20px;">
+            ${chapter.subtitle}
+          </h3>
+        </div>
+      `;
+
+      // Add questions and answers
+      chapter.questions.forEach((question, index) => {
+        const answer = answers[`${chapter.id}-${index}`] || 'Brak odpowiedzi';
+        chapterDiv.innerHTML += `
+          <div style="margin-bottom: 20px; padding: 10px; border-left: 3px solid #e5e7eb;">
+            <p style="color: #4b5563; font-weight: bold; margin-bottom: 5px;">
+              ${question}
+            </p>
+            <p style="color: #1f2937; white-space: pre-wrap;">
+              ${answer.replace(/\n/g, '<br>')}
+            </p>
+          </div>
+        `;
+      });
+
+      content.appendChild(chapterDiv);
+    });
+
+    // PDF generation options
+    const options = {
+      margin: 1,
+      filename: 'Moj_Pamietnik.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    try {
+      await html2pdf().set(options).from(content).save();
+    } catch (error) {
+      console.error('Błąd podczas generowania PDF:', error);
+      alert('Wystąpił błąd podczas generowania PDF. Spróbuj ponownie.');
+    }
+  };
+
+  // Define SettingsButton component inside App
+  const SettingsButton = () => (
+    <button
+      onClick={() => setIsSettingsOpen(true)}
+      className="fixed top-4 right-4 p-3 bg-white dark:bg-gray-800 
+                 rounded-full shadow-lg hover:shadow-xl transition-all z-50"
+    >
+      <SettingsIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+    </button>
+  );
+
+  return (
+    <div className={theme === 'dark' ? 'dark' : ''}>
+      <SettingsButton />
+      <Settings 
+        theme={theme}
+        toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        currentTheme={currentTheme}
+        setCurrentTheme={setCurrentTheme}
+      />
+
+      <AnimatePresence mode="wait">
+        {view === "welcome" && (
+          <motion.div
+            key="welcome"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <WelcomeScreen 
+              onStart={() => setView("chapters")}
+              theme={themes[currentTheme]}
+            />
+          </motion.div>
+        )}
+        
+        {view === "chapters" && (
+          <motion.div
+            key="chapters"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ChapterOverview 
+              onSelectChapter={(chapter) => {
+                setCurrentChapter(chapter);
+                setView("question");
+              }}
+              answers={answers} 
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              theme={themes[currentTheme]} // Add theme prop
+            />
+          </motion.div>
+        )}
+        
+        {view === "question" && currentChapter && (
+          <motion.div
+            key="question"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.3 }}
+          >
+            <QuestionInterface
+              chapter={currentChapter}
+              onBack={() => setView("chapters")}
+              answers={answers}
+              setAnswers={setAnswers}
+              theme={themes[currentTheme]}
+              exportToPDF={exportFullPDF} // Match the function name here
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {view !== "welcome" && (
+        <Timeline 
+          chapters={chapters} 
+          activeChapter={currentChapter} 
+          onSelectChapter={(chapter) => {
+            setCurrentChapter(chapter);
+            setView("question");
+          }}
+          theme={themes[currentTheme]}
+        />
+      )}
+    </div>
+  );
+}
+
+export default App;
+
+
+--- src\App.test.js ---
+import { render, screen } from '@testing-library/react';
+import App from './App';
+
+test('renders learn react link', () => {
+  render(<App />);
+  const linkElement = screen.getByText(/learn react/i);
+  expect(linkElement).toBeInTheDocument();
+});
+
+
+--- src\index.css ---
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+.font-serif {
+  font-family: "Crimson Text", Georgia, serif;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+--- src\index.js ---
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
+
+
+--- src\reportWebVitals.js ---
+const reportWebVitals = onPerfEntry => {
+  if (onPerfEntry && onPerfEntry instanceof Function) {
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(onPerfEntry);
+      getFID(onPerfEntry);
+      getFCP(onPerfEntry);
+      getLCP(onPerfEntry);
+      getTTFB(onPerfEntry);
+    });
+  }
+};
+
+export default reportWebVitals;
+
+
+--- src\setupTests.js ---
+// jest-dom adds custom jest matchers for asserting on DOM nodes.
+// allows you to do things like:
+// expect(element).toHaveTextContent(/react/i)
+// learn more: https://github.com/testing-library/jest-dom
+import '@testing-library/jest-dom';
+
+
+--- src\tips.js ---
+export const tips = [
+  "Nie musisz odpowiadać od razu. Zapisz myśli na później.",
+  "Spróbuj opisać to uczucie obrazem, dźwiękiem albo zapachem.",
+  "To pytanie może być trudne — pozwól sobie na pauzę.",
+  "Nie ma złych odpowiedzi. Twoje wspomnienia są ważne.",
+  "Pomyśl, jak opowiedział(a)byś to bliskiej osobie.",
+  "Zamknij oczy i przypomnij sobie ten moment całym ciałem.",
+  "Możesz wrócić do tego pytania w innym dniu.",
+  "Czasem jedno słowo wystarczy — nie musisz się rozpisywać.",
+  "Jeśli nie pamiętasz szczegółów, opisz to, co czujesz.",
+  "Twoje słowa mogą być kiedyś dla kogoś bezcenne.",
+  "Zapisuj sercem, nie głową.",
+  "Użyj metafory, jeśli nie znajdujesz właściwych słów.",
+  "Nie bój się emocji — one tworzą historię.",
+  "To pytanie możesz zinterpretować na swój sposób.",
+  "Cisza też jest odpowiedzią. Ale spróbuj coś zostawić.",
+  "Wyobraź sobie, że mówisz to dziecku lub wnukowi.",
+  "Wróć do tego, co czujesz TERAZ, nie tylko do tego co było.",
+  "Twoja perspektywa ma wartość — nawet jeśli się zmienia.",
+];
+
+--- src\components\ChapterOverview.js ---
+import { motion } from "framer-motion";
+
+function ChapterOverview({ onSelectChapter, answers, theme, chapters }) {
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4 md:p-8 pb-24">
+      <div className="max-w-6xl mx-auto">
+        <motion.div className="text-center mb-12">
+          <BookOpen className="w-16 h-16 mx-auto text-indigo-600 dark:text-indigo-400 mb-4" />
+          <h1 className="text-3xl font-serif text-gray-800 dark:text-white mb-2">
+            Twoja Historia
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            Wybierz rozdział, który chcesz pisać
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {chapters.map((chapter) => (
+            <motion.div key={chapter.id} className="relative group">
+              <motion.div
+                onClick={() => onSelectChapter(chapter)}
+                className="bg-white dark:bg-gray-800 p-6 rounded-2xl cursor-pointer 
+                         shadow-lg hover:shadow-xl transition-all duration-300"
+                whileHover={{ scale: 1.02 }}
+              >
+                {chapter.component ? (
+                  <chapter.component />
+                ) : (
+                  <div className="relative z-10">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <span className="text-2xl">{timelineIcons[chapter.title]}</span>
+                      <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
+                        {chapter.title}
+                      </h3>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                      {chapter.subtitle}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {Object.keys(answers).filter(key => 
+                          key.startsWith(`${chapter.id}-`)).length}/{chapter.questions.length} odpowiedzi
+                      </span>
+                      <div className="w-16 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                          className="h-1 bg-gradient-to-r from-green-400 to-green-500 rounded-full"
+                          style={{ 
+                            width: `${(Object.keys(answers).filter(key => 
+                              key.startsWith(`${chapter.id}-`)).length / chapter.questions.length) * 100}%` 
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ChapterOverview;
+
+--- src\components\GoogleCalendar.js ---
+import React, { useEffect, useState } from "react";
+import { gapi } from "gapi-script";
+import { Calendar } from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+
+const SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
+// Fix swapped credentials
+const CLIENT_ID = '255294775729-7n9udt134iujd5f6fej0ovf6e7fnj036.apps.googleusercontent.com';
+const API_KEY = 'AIzaSyArTtihFnYGx5xbqHOkMvbSugzYTdQ0aYM';
+
+export default function GoogleCalendar() {
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [error, setError] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  // Add missing events state
+  const [events, setEvents] = useState([]);
+
+  // Initialize Google API
+  useEffect(() => {
+    const loadGoogleAPI = async () => {
+      try {
+        // Load the Google API script
+        await new Promise((resolve) => {
+          gapi.load('client:auth2', resolve);
+        });
+
+        // Initialize the client
+        await gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
+          scope: SCOPES,
+        });
+
+        setIsInitialized(true);
+
+        // Check if already signed in
+        const auth2 = gapi.auth2.getAuthInstance();
+        if (auth2.isSignedIn.get()) {
+          await listUpcomingEvents();
+        }
+      } catch (err) {
+        setError(`Initialization error: ${err.message}`);
+        console.error('Failed to initialize Google API:', err);
+      }
+    };
+
+    loadGoogleAPI();
+  }, []);
+
+  const handleAuthClick = async () => {
+    try {
+      if (!gapi.auth2) {
+        setError('Google Auth not initialized');
+        return;
+      }
+
+      const auth2 = gapi.auth2.getAuthInstance();
+      await auth2.signIn();
+      await listUpcomingEvents();
+    } catch (err) {
+      setError(`Authentication error: ${err.message}`);
+      console.error('Authentication failed:', err);
+    }
+  };
+
+  const listUpcomingEvents = async () => {
+    try {
+      const response = await gapi.client.calendar.events.list({
+        calendarId: 'primary',
+        timeMin: new Date().toISOString(),
+        showDeleted: false,
+        singleEvents: true,
+        maxResults: 10,
+        orderBy: 'startTime'
+      });
+
+      setEvents(response.result.items);
+    } catch (err) {
+      setError(`Failed to fetch events: ${err.message}`);
+      console.error('Failed to fetch events:', err);
+    }
+  };
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
+
+  if (error) {
+    return (
+      <div className="text-red-500 text-sm p-2">
+        Wystąpił błąd: {error}
+      </div>
+    );
+  }
+
+  return (
+    <div className="calendar-widget space-y-4">
+      <Calendar
+        onChange={handleDateChange}
+        value={selectedDate}
+        className="rounded-lg border-0 shadow-sm w-full"
+      />
+      
+      {!isInitialized ? (
+        <button
+          disabled
+          className="w-full px-4 py-2 bg-gray-200 text-gray-600 rounded-lg"
+        >
+          Inicjalizacja kalendarza...
+        </button>
+      ) : (
+        <button
+          onClick={handleAuthClick}
+          className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 
+                   text-white rounded-lg transition-colors"
+        >
+          {events.length > 0 ? 'Odśwież wydarzenia' : 'Zaloguj do Google Calendar'}
+        </button>
+      )}
+
+      {events.length > 0 && (
+        <div className="mt-4">
+          <h3 className="text-sm font-medium mb-2">Wydarzenia na {selectedDate.toLocaleDateString()}</h3>
+          <ul className="space-y-2">
+            {events.map((event) => (
+              <li 
+                key={event.id}
+                className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg 
+                         text-sm text-gray-700 dark:text-gray-200"
+              >
+                {event.summary}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+--- src\components\Settings.js ---
+import React from 'react';
+import { Moon, Sun } from 'lucide-react';
+
+const themes = {
+  classic: {
+    name: 'Klasyczny',
+    description: 'Elegancki i ponadczasowy',
+    preview: 'from-amber-50 to-amber-100'
+  },
+  modern: {
+    name: 'Nowoczesny',
+    description: 'Minimalistyczny i świeży',
+    preview: 'from-blue-50 to-indigo-100'
+  },
+  retro: {
+    name: 'Retro',
+    description: 'Nostalgiczny i ciepły',
+    preview: 'from-rose-50 to-rose-100'
+  },
+  nature: {
+    name: 'Natura',
+    description: 'Organiczny i spokojny',
+    preview: 'from-emerald-50 to-emerald-100'
+  }
+};
+
+function Settings({ theme, toggleTheme, isOpen, onClose, currentTheme, setCurrentTheme }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+        <h2 className="text-2xl font-serif text-gray-800 dark:text-white mb-6">
+          Ustawienia
+        </h2>
+
+        {/* Dark Mode Toggle */}
+        <div className="mb-6">
+          <h3 className="text-lg text-gray-700 dark:text-gray-200 mb-3">
+            Tryb wyświetlania
+          </h3>
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center justify-between px-4 py-3 
+                     bg-gray-100 dark:bg-gray-700 rounded-xl"
+          >
+            <span className="text-gray-700 dark:text-gray-200">
+              {theme === 'dark' ? 'Tryb jasny' : 'Tryb ciemny'}
+            </span>
+            {theme === 'dark' ? (
+              <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            ) : (
+              <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            )}
+          </button>
+        </div>
+
+        {/* Wybór motywu */}
+        <div className="mb-8">
+          <h3 className="text-lg text-gray-700 dark:text-gray-200 mb-4">
+            Wygląd aplikacji
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            {Object.entries(themes).map(([key, value]) => (
+              <button
+                key={key}
+                onClick={() => setCurrentTheme(key)}
+                className={`p-4 rounded-xl transition-all ${
+                  currentTheme === key 
+                    ? 'ring-2 ring-blue-500 scale-105' 
+                    : 'hover:scale-105'
+                } bg-gradient-to-br ${value.preview}`}
+              >
+                <h4 className="font-medium mb-1">{value.name}</h4>
+                <p className="text-sm text-gray-600">{value.description}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Przycisk zamknięcia */}
+        <button
+          onClick={onClose}
+          className="w-full px-4 py-2 mt-6 bg-gray-800 text-white rounded-lg 
+                   hover:bg-gray-700 transition-colors"
+        >
+          Zamknij
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default Settings;
+
+--- src\components\SettingsPanel.js ---
+function SettingsPanel({ theme, setTheme, isDarkMode, setIsDarkMode, isOpen, onClose }) {
+  // ...istniejący kod...
+
+  return (
+    <motion.div>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+        {/* ...istniejące sekcje... */}
+
+        {/* Dodaj sekcję kalendarza */}
+        <div className="mb-6">
+          <h3 className="text-lg text-gray-700 dark:text-gray-200 mb-3">Kalendarz</h3>
+          <div className="bg-white dark:bg-gray-700 rounded-xl p-4">
+            <GoogleCalendar />
+          </div>
+        </div>
+
+        {/* ...pozostałe sekcje... */}
+      </div>
+    </motion.div>
+  );
+}
+
+--- src\components\Chapter\Chapter.js ---
+import { useState } from 'react';
+import { Question } from '../Question/Question';
+
+export function Chapter({ questions }) {
+  const [answers, setAnswers] = useState({});
+  const [emotions, setEmotions] = useState({});
+
+  const handleAnswerChange = (questionId, value) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: value
+    }));
+  };
+
+  const handleEmotionChange = (questionId, newEmotions) => {
+    setEmotions(prev => ({
+      ...prev,
+      [questionId]: newEmotions
+    }));
+    
+    // Tutaj możesz dodać zapisywanie do bazy danych
+    saveToDatabase(questionId, newEmotions);
+  };
+
+  return (
+    <div className="space-y-6">
+      {questions.map((question) => (
+        <Question
+          key={question.id}
+          question={question.text}
+          answer={answers[question.id]}
+          emotions={emotions[question.id] || { touched: false, favorite: false }}
+          onAnswerChange={(value) => handleAnswerChange(question.id, value)}
+          onEmotionChange={(newEmotions) => handleEmotionChange(question.id, newEmotions)}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Funkcja do zapisywania w bazie danych
+async function saveToDatabase(questionId, emotions) {
+  try {
+    // Tutaj dodaj logikę zapisu do bazy
+    console.log('Saving emotions for question:', questionId, emotions);
+  } catch (error) {
+    console.error('Error saving emotions:', error);
+  }
+}
+
+--- src\components\Question\AddQuestionModal.js ---
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Plus } from 'lucide-react';
+
+export function AddQuestionModal({ isOpen, onClose, onAdd, theme }) {
+  const [newQuestion, setNewQuestion] = useState('');
+  const [questionType, setQuestionType] = useState('self');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (newQuestion.trim()) {
+      onAdd({
+        question: newQuestion.trim(),
+        type: questionType,
+        custom: true
+      });
+      setNewQuestion('');
+      onClose();
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <motion.div
+      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md p-6"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+      >
+        <div className="flex justify-between items-center mb-6">
+          <h3 className={`text-xl font-semibold text-gray-900 dark:text-gray-100 ${theme.font}`}>
+            Dodaj własne pytanie
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 
+                     text-gray-500 dark:text-gray-400 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Treść pytania
+            </label>
+            <textarea
+              value={newQuestion}
+              onChange={(e) => setNewQuestion(e.target.value)}
+              placeholder="Np. Jakie jest Twoje najpiękniejsze wspomnienie z dzieciństwa?"
+              className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 
+                       border border-gray-200 dark:border-gray-600
+                       focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                       text-gray-800 dark:text-gray-100"
+              rows="3"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Typ pytania
+            </label>
+            <select
+              value={questionType}
+              onChange={(e) => setQuestionType(e.target.value)}
+              className="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-700 
+                       border border-gray-200 dark:border-gray-600
+                       focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                       text-gray-800 dark:text-gray-100"
+            >
+              <option value="self">Dla mnie</option>
+              <option value="recipient">Dla odbiorcy</option>
+            </select>
+          </div>
+
+          <div className="pt-4">
+            <button
+              type="submit"
+              className={`w-full py-3 px-4 rounded-lg bg-gradient-to-r ${theme.buttons} 
+                       text-white font-medium hover:shadow-lg transition-shadow
+                       flex items-center justify-center space-x-2`}
+            >
+              <Plus className="w-5 h-5" />
+              <span>Dodaj pytanie</span>
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+--- src\components\Question\HiddenQuestions.js ---
+import { motion, AnimatePresence } from 'framer-motion';
+import { Eye } from 'lucide-react';
+
+const listVariants = {
+  hidden: { opacity: 0, height: 0 },
+  visible: {
+    opacity: 1,
+    height: 'auto',
+    transition: {
+      staggerChildren: 0.1,
+      height: { type: 'spring', stiffness: 100 },
+    },
+  },
+  exit: {
+    opacity: 0,
+    height: 0,
+    transition: {
+      staggerChildren: 0.05,
+      staggerDirection: -1,
+      height: { type: 'spring', stiffness: 100 },
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: 20 },
+};
+
+export function HiddenQuestions({ questions, hiddenIndices, onRestore, theme }) {
+  if (hiddenIndices.length === 0) return null;
+
+  return (
+    <motion.div
+      variants={listVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-4 mb-6"
+    >
+      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+        Ukryte pytania ({hiddenIndices.length})
+      </h3>
+      <AnimatePresence mode="popLayout">
+        <div className="space-y-2">
+          {hiddenIndices.map((index) => (
+            <motion.div
+              key={index}
+              variants={itemVariants}
+              className="flex items-center justify-between p-3 bg-white 
+                       dark:bg-gray-800 rounded-lg border border-gray-100 
+                       dark:border-gray-700"
+            >
+              <span className="text-gray-600 dark:text-gray-300 text-sm">
+                {questions[index]}
+              </span>
+              <button
+                onClick={() => onRestore(index)}
+                className="p-2 text-gray-400 hover:text-gray-600 
+                         dark:hover:text-gray-300 hover:bg-gray-100 
+                         dark:hover:bg-gray-700 rounded-full transition-colors
+                         group"
+                title="Przywróć pytanie"
+              >
+                <Eye className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              </button>
+            </motion.div>
+          ))}
+        </div>
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+--- src\components\Question\Question.js ---
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Heart, Star, MoreVertical, Info } from 'lucide-react';
+import { tips } from '../../tips';
+
+export function Question({ 
+  question, 
+  answer,
+  onAnswerChange,
+  onEmotionChange,
+  emotions = { touched: false, favorite: false },
+  ...props 
+}) {
+  const [showTip, setShowTip] = useState(false);
+  const [tip, setTip] = useState('');
+  const [showMenu, setShowMenu] = useState(false);
+
+  useEffect(() => {
+    setTip(tips[Math.floor(Math.random() * tips.length)]);
+  }, []);
+
+  return (
+    <motion.div className="bg-white dark:bg-gray-800 rounded-2xl p-6 mb-6 shadow-lg">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start space-x-2">
+          <h3 className="text-lg text-gray-800 dark:text-gray-100">
+            {question}
+          </h3>
+        </div>
+
+        <div className="relative">
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="p-1.5 text-gray-400 hover:text-gray-600"
+          >
+            <MoreVertical className="w-4 h-4" />
+          </button>
+          {showMenu && (
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 
+                         rounded-lg shadow-lg border border-gray-200 
+                         dark:border-gray-700 overflow-hidden z-50">
+              <button
+                onClick={() => {
+                  onHide();
+                  setShowMenu(false);
+                }}
+                className="w-full px-4 py-2.5 text-left text-gray-700 
+                         dark:text-gray-300 hover:bg-gray-100 
+                         dark:hover:bg-gray-700 transition-colors"
+              >
+                🙈 Ukryj to pytanie
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Tooltip */}
+      <div className="mb-4">
+        <button
+          onMouseEnter={() => setShowTip(true)}
+          onMouseLeave={() => setShowTip(false)}
+          onClick={() => setShowTip(!showTip)}
+          className="flex items-center space-x-2 text-gray-400 hover:text-gray-600"
+        >
+          <Info className="w-4 h-4" />
+          <span className="text-sm">Podpowiedź</span>
+        </button>
+        
+        {showTip && (
+          <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg
+                       text-sm text-gray-600 dark:text-gray-300">
+            {tip}
+          </div>
+        )}
+      </div>
+
+      <textarea
+        value={answer || ""}
+        onChange={(e) => onAnswerChange?.(e.target.value)}
+        placeholder="Twoja odpowiedź..."
+        className="w-full min-h-[150px] p-4 mb-4 bg-gray-50 dark:bg-gray-700/50 
+                 rounded-xl border border-gray-200 dark:border-gray-600
+                 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                 text-gray-800 dark:text-gray-100"
+      />
+
+      {/* Pasek reakcji emocjonalnych */}
+      <div className="flex items-center space-x-3">
+        <button
+          onClick={() => handleEmotionToggle('touched')}
+          className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm 
+                    transition-colors duration-200
+                    ${emotions.touched 
+                      ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-500' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}
+        >
+          <Heart 
+            className="w-4 h-4" 
+            fill={emotions.touched ? 'currentColor' : 'none'} 
+          />
+          <span>Wzruszyło mnie</span>
+        </button>
+
+        <button
+          onClick={() => handleEmotionToggle('favorite')}
+          className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm
+                    transition-colors duration-200
+                    ${emotions.favorite 
+                      ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-500' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}
+        >
+          <Star 
+            className="w-4 h-4" 
+            fill={emotions.favorite ? 'currentColor' : 'none'} 
+          />
+          <span>Ważne wspomnienie</span>
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+/* public/index.html */
+<head>
+  <!-- ... -->
+  <div id="tooltip-portal"></div>
+</head>
+
+--- src\components\Question\Question.test.js ---
+import { render, fireEvent, screen } from '@testing-library/react';
+import { Question } from './Question';
+
+describe('Question Component', () => {
+  const mockProps = {
+    chapterId: 1,
+    questionIndex: 0,
+    question: "Test question?",
+    answer: "",
+    onAnswerChange: jest.fn(),
+    onEmotionToggle: jest.fn(),
+    onHide: jest.fn(),
+    theme: { font: 'font-sans' },
+    emotions: {}
+  };
+
+  test('renders question with tooltip', () => {
+    render(<Question {...mockProps} />);
+    expect(screen.getByText("Test question?")).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /info/i })).toBeInTheDocument();
+  });
+
+  test('emotion buttons work', () => {
+    render(<Question {...mockProps} />);
+    fireEvent.click(screen.getByText("Wzruszyło mnie"));
+    expect(mockProps.onEmotionToggle).toHaveBeenCalledWith('touched');
+  });
+});
+
+--- src\components\Question\QuestionTooltip.js ---
+import { useState, useEffect } from 'react';
+import { Info } from 'lucide-react';
+import { questionTooltips } from '../../constants/tooltips';
+
+export function QuestionTooltip() {
+  const [tip, setTip] = useState('');
+
+  useEffect(() => {
+    const tips = questionTooltips.default;
+    const randomTip = tips[Math.floor(Math.random() * tips.length)];
+    setTip(randomTip);
+  }, []);
+
+  return (
+    <div className="group relative inline-block">
+      <Info className="w-4 h-4 text-gray-400 group-hover:text-gray-600 
+                      dark:text-gray-500 dark:group-hover:text-gray-300 
+                      transition-colors cursor-pointer" />
+      <div className="absolute left-0 top-full mt-2 w-64 p-3 text-sm
+                    bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300
+                    border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg
+                    opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                    pointer-events-none z-50">
+        {tip}
+      </div>
+    </div>
+  );
+}
+
+--- src\components\Question\SimpleTooltip.js ---
+import { useState } from 'react';
+import { Info } from 'lucide-react';
+import { TIPS } from '../../constants/tips';
+
+export function SimpleTooltip() {
+  const [tip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
+  const [isVisible, setIsVisible] = useState(false);
+
+  return (
+    <div className="mt-3 mb-4">
+      <button
+        className="flex items-center space-x-2 text-gray-500 hover:text-gray-700 
+                   dark:text-gray-400 dark:hover:text-gray-300"
+        onClick={() => setIsVisible(!isVisible)}
+      >
+        <Info className="w-4 h-4" />
+        <span className="text-sm">Podpowiedź do pytania</span>
+      </button>
+
+      {isVisible && (
+        <div className="mt-2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-md
+                     border border-gray-200 dark:border-gray-700
+                     text-sm text-gray-600 dark:text-gray-300
+                     animate-fadeIn">
+          {tip}
+        </div>
+      )}
+    </div>
+  );
+}
+
+--- src\components\QuestionInterface\HiddenQuestions.js ---
+import { motion } from 'framer-motion';
+import { Eye } from 'lucide-react';
+
+export function HiddenQuestions({ questions, hiddenIndices, onRestore, theme }) {
+  if (hiddenIndices.length === 0) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
+      className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-4 mb-6"
+    >
+      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+        Ukryte pytania
+      </h3>
+      <div className="space-y-2">
+        {hiddenIndices.map((index) => (
+          <div
+            key={index}
+            className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 
+                     rounded-lg border border-gray-100 dark:border-gray-700"
+          >
+            <span className="text-gray-600 dark:text-gray-300">
+              {questions[index]}
+            </span>
+            <button
+              onClick={() => onRestore(index)}
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
+                       hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+--- src\components\QuestionInterface\QuestionInterface.js ---
+import { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, AlertCircle, XCircle } from 'lucide-react';
+import { Question } from '../Question/Question';
+import { HiddenQuestions } from '../Question/HiddenQuestions';
+import { AddQuestionModal } from '../Question/AddQuestionModal';
+
+// Add error messages constant
+const ERROR_MESSAGES = {
+  localStorage: "Nie udało się zapisać danych lokalnie. Sprawdź ustawienia przeglądarki.",
+  loadData: "Wystąpił problem podczas ładowania danych. Spróbuj odświeżyć stronę.",
+  addQuestion: "Nie udało się dodać pytania. Spróbuj ponownie.",
+  hideQuestion: "Nie udało się ukryć pytania. Spróbuj ponownie.",
+  emotion: "Nie udało się zapisać reakcji. Spróbuj ponownie."
+};
+
+export function QuestionInterface({ chapter, answers, setAnswers, theme, onBack }) {
+  // Add error state
+  const [error, setError] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  // Wrap localStorage operations in try-catch
+  const [customQuestions, setCustomQuestions] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`custom-questions-${chapter.id}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch (err) {
+      setError(ERROR_MESSAGES.loadData);
+      return [];
+    }
+  });
+
+  const [hiddenQuestions, setHiddenQuestions] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`hidden-questions-${chapter.id}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch (err) {
+      setError(ERROR_MESSAGES.loadData);
+      return [];
+    }
+  });
+
+  const [emotions, setEmotions] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`emotions-${chapter.id}`);
+      return saved ? JSON.parse(saved) : {};
+    } catch (err) {
+      setError(ERROR_MESSAGES.loadData);
+      return {};
+    }
+  });
+
+  // Add safe localStorage setter
+  const safeSetLocalStorage = useCallback((key, value, errorType) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (err) {
+      setError(ERROR_MESSAGES[errorType]);
+      return false;
+    }
+    return true;
+  }, []);
+
+  // Update handlers with error handling
+  const handleAnswerChange = (questionIndex, value) => {
+    try {
+      const key = `${chapter.id}-${questionIndex}`;
+      setAnswers(prev => ({
+        ...prev,
+        [key]: value
+      }));
+    } catch (err) {
+      setError(ERROR_MESSAGES.localStorage);
+    }
+  };
+
+  const handleEmotionToggle = (questionIndex, type) => {
+    try {
+      const key = `${chapter.id}-${questionIndex}`;
+      const updatedEmotions = {
+        ...emotions,
+        [key]: {
+          ...emotions[key],
+          [type]: !emotions[key]?.[type]
+        }
+      };
+      
+      if (safeSetLocalStorage(`emotions-${chapter.id}`, updatedEmotions, 'emotion')) {
+        setEmotions(updatedEmotions);
+        setError(null);
+      }
+    } catch (err) {
+      setError(ERROR_MESSAGES.emotion);
+    }
+  };
+
+  const handleHideQuestion = (index) => {
+    try {
+      const updatedHidden = [...hiddenQuestions, index];
+      if (safeSetLocalStorage(`hidden-questions-${chapter.id}`, updatedHidden, 'hideQuestion')) {
+        setHiddenQuestions(updatedHidden);
+        setError(null);
+      }
+    } catch (err) {
+      setError(ERROR_MESSAGES.hideQuestion);
+    }
+  };
+
+  const handleRestoreQuestion = (index) => {
+    try {
+      const updatedHidden = hiddenQuestions.filter(i => i !== index);
+      if (safeSetLocalStorage(`hidden-questions-${chapter.id}`, updatedHidden, 'hideQuestion')) {
+        setHiddenQuestions(updatedHidden);
+        setError(null);
+      }
+    } catch (err) {
+      setError(ERROR_MESSAGES.hideQuestion);
+    }
+  };
+
+  const handleAddQuestion = (newQuestion) => {
+    try {
+      const updatedQuestions = [...customQuestions, newQuestion];
+      if (safeSetLocalStorage(`custom-questions-${chapter.id}`, updatedQuestions, 'addQuestion')) {
+        setCustomQuestions(updatedQuestions);
+        setError(null);
+      }
+    } catch (err) {
+      setError(ERROR_MESSAGES.addQuestion);
+    }
+  };
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      {/* Error Message */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl 
+                     border border-red-100 dark:border-red-800"
+          >
+            <div className="flex items-start space-x-3">
+              <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+              <div className="flex-grow">
+                <p className="text-red-700 dark:text-red-300">{error}</p>
+              </div>
+              <button
+                onClick={() => setError(null)}
+                className="text-red-400 hover:text-red-600 dark:text-red-500 
+                         dark:hover:text-red-300"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Hidden Questions Section */}
+      <HiddenQuestions
+        questions={chapter.questions}
+        hiddenIndices={hiddenQuestions}
+        onRestore={handleRestoreQuestion}
+        theme={theme}
+      />
+
+      {/* Questions List */}
+      <div className="space-y-6">
+        {visibleQuestions.map((question, index) => (
+          <Question
+            key={`${chapter.id}-${index}`}
+            chapterId={chapter.id}
+            questionIndex={index}
+            question={question}
+            answer={answers[`${chapter.id}-${index}`] || ''}
+            onAnswerChange={(value) => handleAnswerChange(index, value)}
+            emotions={emotions[`${chapter.id}-${index}`] || {}}
+            onEmotionToggle={(type) => handleEmotionToggle(index, type)}
+            onHide={() => handleHideQuestion(index)}
+            theme={theme}
+          />
+        ))}
+
+        {/* Custom Questions */}
+        {customQuestions.map((customQ, index) => (
+          <Question
+            key={`custom-${chapter.id}-${index}`}
+            chapterId={chapter.id}
+            questionIndex={`custom-${index}`}
+            question={customQ.question}
+            answer={answers[`${chapter.id}-custom-${index}`] || ''}
+            onAnswerChange={(value) => handleAnswerChange(`custom-${index}`, value)}
+            emotions={emotions[`${chapter.id}-custom-${index}`] || {}}
+            onEmotionToggle={(type) => handleEmotionToggle(`custom-${index}`, type)}
+            theme={theme}
+            custom={true}
+          />
+        ))}
+      </div>
+
+      {/* Add Question Button */}
+      <motion.button
+        onClick={() => setShowAddModal(true)}
+        className="w-full p-4 mt-8 border-2 border-dashed border-gray-200 
+                 dark:border-gray-700 rounded-2xl flex items-center 
+                 justify-center space-x-2 text-gray-500 dark:text-gray-400 
+                 hover:border-blue-500 dark:hover:border-blue-400 
+                 hover:text-blue-500 dark:hover:text-blue-400
+                 transition-colors group"
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+      >
+        <Plus className="w-5 h-5" />
+        <span>Dodaj własne pytanie do tego rozdziału</span>
+      </motion.button>
+
+      {/* Add Question Modal */}
+      <AnimatePresence>
+        {showAddModal && (
+          <AddQuestionModal
+            isOpen={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            onAdd={handleAddQuestion}
+            theme={theme}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+--- src\constants\tips.js ---
+export const TIPS = [
+  "Nie musisz odpowiadać od razu. Zapisz myśli na później.",
+  "Spróbuj opisać to uczucie obrazem, dźwiękiem albo zapachem.",
+  "To pytanie może być trudne — pozwól sobie na pauzę.",
+  "Nie ma złych odpowiedzi. Twoje wspomnienia są ważne.",
+  "Pomyśl, jak opowiedział(a)byś to bliskiej osobie.",
+  "Zamknij oczy i przypomnij sobie ten moment całym ciałem.",
+  "Możesz wrócić do tego pytania w innym dniu.",
+  "Czasem jedno słowo wystarczy — nie musisz się rozpisywać.",
+  "Jeśli nie pamiętasz szczegółów, opisz to, co czujesz.",
+  "Twoje słowa mogą być kiedyś dla kogoś bezcenne.",
+  "Zapisuj sercem, nie głową.",
+  "Użyj metafory, jeśli nie znajdujesz właściwych słów.",
+  "Nie bój się emocji — one tworzą historię.",
+  "To pytanie możesz zinterpretować na swój sposób.",
+  "Cisza też jest odpowiedzią. Ale spróbuj coś zostawić.",
+  "Wyobraź sobie, że mówisz to dziecku lub wnukowi.",
+  "Wróć do tego, co czujesz TERAZ, nie tylko do tego co było.",
+  "Twoja perspektywa ma wartość — nawet jeśli się zmienia."
+];
+
+--- src\constants\tooltips.js ---
+export const TIPS = [
+  "Nie musisz odpowiadać od razu. Zapisz myśli na później.",
+  "Spróbuj opisać to uczucie obrazem, dźwiękiem albo zapachem.",
+  "To pytanie może być trudne — pozwól sobie na pauzę.",
+  "Nie ma złych odpowiedzi. Twoje wspomnienia są ważne.",
+  "Pomyśl, jak opowiedział(a)byś to bliskiej osobie.",
+  "Zamknij oczy i przypomnij sobie ten moment całym ciałem.",
+  "Możesz wrócić do tego pytania w innym dniu.",
+  "Czasem jedno słowo wystarczy — nie musisz się rozpisywać.",
+  "Jeśli nie pamiętasz szczegółów, opisz to, co czujesz.",
+  "Twoje słowa mogą być kiedyś dla kogoś bezcenne.",
+  "Zapisuj sercem, nie głową.",
+  "Użyj metafory, jeśli nie znajdujesz właściwych słów.",
+  "Nie bój się emocji — one tworzą historię.",
+  "To pytanie możesz zinterpretować na swój sposób.",
+  "Cisza też jest odpowiedzią. Ale spróbuj coś zostawić.",
+  "Wyobraź sobie, że mówisz to dziecku lub wnukowi.",
+  "Wróć do tego, co czujesz TERAZ, nie tylko do tego co było.",
+  "Twoja perspektywa ma wartość — nawet jeśli się zmienia."
+];
+
+--- src\utils\googleCalendarInit.js ---
+import { gapi } from 'gapi-script';
+
+export const initGoogleCalendarAPI = () => {
+  return new Promise((resolve, reject) => {
+    gapi.load('client:auth2', () => {
+      gapi.client
+        .init({
+          apiKey: process.env.REACT_APP_GOOGLE_API_KEY,
+          clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+          discoveryDocs: [
+            'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'
+          ],
+          scope: 'https://www.googleapis.com/auth/calendar'
+        })
+        .then(() => {
+          resolve(gapi);
+        })
+        .catch(error => {
+          reject(error);
+        });
+    });
+  });
+};

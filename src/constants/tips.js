@@ -1,0 +1,20 @@
+export const TIPS = [
+  "Nie musisz odpowiadać od razu. Zapisz myśli na później.",
+  "Spróbuj opisać to uczucie obrazem, dźwiękiem albo zapachem.",
+  "To pytanie może być trudne — pozwól sobie na pauzę.",
+  "Nie ma złych odpowiedzi. Twoje wspomnienia są ważne.",
+  "Pomyśl, jak opowiedział(a)byś to bliskiej osobie.",
+  "Zamknij oczy i przypomnij sobie ten moment całym ciałem.",
+  "Możesz wrócić do tego pytania w innym dniu.",
+  "Czasem jedno słowo wystarczy — nie musisz się rozpisywać.",
+  "Jeśli nie pamiętasz szczegółów, opisz to, co czujesz.",
+  "Twoje słowa mogą być kiedyś dla kogoś bezcenne.",
+  "Zapisuj sercem, nie głową.",
+  "Użyj metafory, jeśli nie znajdujesz właściwych słów.",
+  "Nie bój się emocji — one tworzą historię.",
+  "To pytanie możesz zinterpretować na swój sposób.",
+  "Cisza też jest odpowiedzią. Ale spróbuj coś zostawić.",
+  "Wyobraź sobie, że mówisz to dziecku lub wnukowi.",
+  "Wróć do tego, co czujesz TERAZ, nie tylko do tego co było.",
+  "Twoja perspektywa ma wartość — nawet jeśli się zmienia."
+];

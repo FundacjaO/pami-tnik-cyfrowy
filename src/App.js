@@ -1,6 +1,19 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, Heart, Save, Home, ChevronLeft, ChevronRight, Download, Settings as SettingsIcon, MoreHorizontal, X } from "lucide-react";
+import { 
+  BookOpen, 
+  Heart, 
+  Save, 
+  Home, 
+  ChevronLeft, 
+  ChevronRight, 
+  Download, 
+  Settings as SettingsIcon,
+  MoreHorizontal,
+  X 
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import html2pdf from 'html2pdf.js';
+import { jsPDF } from 'jspdf';
 import './App.css';
 import Settings from './components/Settings';
 
@@ -317,6 +330,48 @@ const themes = {
 };
 
 function WelcomeScreen({ onStart, theme }) {
+  // Existing states
+  const [author, setAuthor] = useState(() => localStorage.getItem('diary-author') || '');
+  const [recipient, setRecipient] = useState(() => localStorage.getItem('diary-recipient') || '');
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState(false);
+
+  // New states for gift feature
+  const [isGift, setIsGift] = useState(() => localStorage.getItem('diary-isGift') === 'true');
+  const [dedication, setDedication] = useState(() => localStorage.getItem('diary-dedication') || '');
+  const [giftDate, setGiftDate] = useState(() => localStorage.getItem('diary-giftDate') || '');
+  const [recipientEmail, setRecipientEmail] = useState(() => localStorage.getItem('diary-recipientEmail') || '');
+
+  // Save to localStorage whenever values change
+  useEffect(() => {
+    localStorage.setItem('diary-author', author);
+    localStorage.setItem('diary-recipient', recipient);
+    localStorage.setItem('diary-isGift', isGift);
+    localStorage.setItem('diary-dedication', dedication);
+    localStorage.setItem('diary-giftDate', giftDate);
+    localStorage.setItem('diary-recipientEmail', recipientEmail);
+  }, [author, recipient, isGift, dedication, giftDate, recipientEmail]);
+
+  const handleStart = () => {
+    if (author.trim() && recipient.trim()) {
+      // Save gift data if enabled
+      if (isGift) {
+        // Here you would typically send this to your backend
+        const giftData = {
+          isGift,
+          dedication: dedication.trim(),
+          giftDate,
+          recipientEmail: recipientEmail.trim()
+        };
+        console.log('Gift data:', giftData);
+      }
+
+      setShowWelcomeMessage(true);
+      setTimeout(() => {
+        onStart();
+      }, 3000);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 p-4 flex flex-col justify-center">
       <div className="max-w-2xl mx-auto text-center">
@@ -333,9 +388,12 @@ function WelcomeScreen({ onStart, theme }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <h1 className={`text-4xl ${theme.font} text-gray-800 dark:text-gray-100 mb-4`}>
-            Moja Historia
+          <h1 className={`text-4xl ${theme.font} text-gray-800 dark:text-gray-100 mb-2 font-bold`}>
+            Pamiętniki Rodzinne
           </h1>
+          <p className={`text-xl ${theme.font} text-gray-600 dark:text-gray-300 mb-8`}>
+            Kroniki pokolenia
+          </p>
         </motion.div>
 
         <motion.div
@@ -343,7 +401,7 @@ function WelcomeScreen({ onStart, theme }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
         >
-          <p className={`text-lg ${theme.font} text-gray-600 dark:text-gray-200 mb-10 leading-relaxed`}>
+          <p className={`text-lg ${theme.font} text-gray-600 dark:text-gray-200 mb-6 leading-relaxed`}>
             Witaj w Twoim osobistym pamiętniku. To miejsce, gdzie Twoje wspomnienia 
             staną się mostem między pokoleniami.
           </p>
@@ -355,8 +413,8 @@ function WelcomeScreen({ onStart, theme }) {
           transition={{ duration: 0.5, delay: 0.8 }}
         >
           <div className="bg-white dark:bg-gray-800 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg border border-transparent dark:border-gray-700">
-            <p className={`text-gray-700 dark:text-gray-300 italic ${theme.font === 'font-serif' ? '' : 'font-serif'}`}>
-              "Każda historia ma w sobie magię. Twoja czeka na to, by została opowiedziana."
+            <p className={`text-gray-700 dark:text-gray-300 italic ${theme.font === 'font-serif' ? '' : 'font-serif'} text-xl`}>
+              "Twoja opowieść. Ich pamiątka."
             </p>
           </div>
         </motion.div>
@@ -365,14 +423,137 @@ function WelcomeScreen({ onStart, theme }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 1.0 }}
+          className="space-y-6"
         >
-          <button
-            onClick={onStart}
-            className={`bg-gradient-to-r ${theme.buttons} text-white px-8 py-4 
-                     rounded-full text-lg font-medium ${theme.font} hover:shadow-lg transition-all`}
-          >
-            Rozpocznij Swoją Historię
-          </button>
+          {!showWelcomeMessage ? (
+            <>
+              <div className="space-y-4">
+                {/* Existing author and recipient inputs */}
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 text-left mb-2">
+                    💡 Jak się nazywasz, autorze tej historii?
+                  </label>
+                  <input
+                    type="text"
+                    value={author}
+                    onChange={(e) => setAuthor(e.target.value)}
+                    placeholder="np. Jan Kowalski"
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 
+                             border border-gray-200 dark:border-gray-600 
+                             focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                             text-gray-800 dark:text-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 text-left mb-2">
+                    💡 Dla kogo ją tworzysz?
+                  </label>
+                  <input
+                    type="text"
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                    placeholder="np. Dla mojej córki Agi"
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 
+                             border border-gray-200 dark:border-gray-600 
+                             focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                             text-gray-800 dark:text-gray-100"
+                  />
+                </div>
+
+                {/* Gift checkbox */}
+                <div className="pt-2">
+                  <label className="flex items-center space-x-3 text-gray-700 dark:text-gray-300 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isGift}
+                      onChange={(e) => setIsGift(e.target.checked)}
+                      className="w-5 h-5 rounded border-gray-300 text-blue-500 
+                               focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                    />
+                    <span>🎁 To będzie prezent</span>
+                  </label>
+                </div>
+
+                {/* Gift options */}
+                <AnimatePresence>
+                  {isGift && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="space-y-4 pt-4"
+                    >
+                      <div>
+                        <label className="block text-gray-700 dark:text-gray-300 text-left mb-2">
+                          ✨ Dedykacja
+                        </label>
+                        <textarea
+                          value={dedication}
+                          onChange={(e) => setDedication(e.target.value)}
+                          placeholder="np. Dla mojej kochanej córki Agnieszki..."
+                          className="w-full px-4 py-3 rounded-xl bg-rose-50 dark:bg-gray-700 
+                                   border border-gray-200 dark:border-gray-600 
+                                   focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400
+                                   text-gray-800 dark:text-gray-100 min-h-[100px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 dark:text-gray-300 text-left mb-2">
+                          📅 Data wręczenia
+                        </label>
+                        <input
+                          type="date"
+                          value={giftDate}
+                          onChange={(e) => setGiftDate(e.target.value)}
+                          min={new Date().toISOString().split('T')[0]}
+                          className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 
+                                   border border-gray-200 dark:border-gray-600 
+                                   focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                                   text-gray-800 dark:text-gray-100"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 dark:text-gray-300 text-left mb-2">
+                          📧 E-mail odbiorcy (opcjonalnie)
+                        </label>
+                        <input
+                          type="email"
+                          value={recipientEmail}
+                          onChange={(e) => setRecipientEmail(e.target.value)}
+                          placeholder="np. agnieszka@email.com"
+                          className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 
+                                   border border-gray-200 dark:border-gray-600 
+                                   focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+                                   text-gray-800 dark:text-gray-100"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <button
+                onClick={handleStart}
+                disabled={!author.trim() || !recipient.trim()}
+                className={`bg-gradient-to-r ${theme.buttons} text-white px-8 py-4 
+                         rounded-full text-lg font-medium ${theme.font} 
+                         hover:shadow-lg transition-all
+                         disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                Rozpocznij Swoją Historię
+              </button>
+            </>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-xl text-gray-700 dark:text-gray-200"
+            >
+              To będzie historia {author} dla {recipient}. Zaczynamy...
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </div>
@@ -564,11 +745,14 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme, export
         {/* Export button */}
         <div className="mt-8 text-center">
           <button
-            onClick={exportToPDF} // This will now call the function passed from App
-            className="flex items-center space-x-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+            onClick={exportToPDF}
+            className="inline-flex items-center space-x-2 px-6 py-3 
+                     bg-white dark:bg-gray-800 rounded-full shadow-md 
+                     hover:shadow-lg transition-all text-gray-600 
+                     dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
           >
-            <Download className="w-5 h-5" /> {/* Inherits color */}
-            <span>Eksportuj Pamiętnik</span> 
+            <Download className="w-5 h-5" />
+            <span>Eksportuj Pamiętnik</span>
           </button>
         </div>
       </div>
@@ -613,7 +797,7 @@ function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
                   key={chapter.id}
                   onClick={() => onSelectChapter(chapter)}
                   className={`flex flex-col items-center group p-1 rounded-lg transition-colors duration-200 ease-in-out
-                              ${activeChapter && activeChapter.id === chapter.id ? 'bg-indigo-100 dark:bg-indigo-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`} {/* Adjusted active dark bg */}
+                              ${activeChapter && activeChapter.id === chapter.id ? 'bg-indigo-100 dark:bg-indigo-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`} 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -712,10 +896,7 @@ function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
 }
 
 function App() {
-  const [view, setView] = useState("welcome");
-  const [currentChapter, setCurrentChapter] = useState(null);
-
-  // Centralized loading logic for pamietnikAppStorage
+  // 1. Load initial state
   const loadInitialState = () => {
     try {
       const savedAppData = localStorage.getItem('pamietnikAppStorage');
@@ -724,13 +905,14 @@ function App() {
         return {
           answers: appData.answers || {},
           currentTheme: appData.userPreferences?.theme || 'classic',
-          isDarkMode: appData.userPreferences?.darkMode !== undefined ? appData.userPreferences.darkMode : false,
+          isDarkMode: appData.userPreferences?.darkMode !== undefined 
+            ? appData.userPreferences.darkMode 
+            : false,
         };
       }
     } catch (error) {
       console.error("Error parsing pamietnikAppStorage:", error);
     }
-    // Default state if nothing in localStorage or parsing fails
     return {
       answers: {},
       currentTheme: 'classic',
@@ -738,13 +920,21 @@ function App() {
     };
   };
 
+  // 2. Initialize states
   const initialState = loadInitialState();
-
+  const [view, setView] = useState("welcome");
+  const [currentChapter, setCurrentChapter] = useState(null);
   const [answers, setAnswers] = useState(initialState.answers);
   const [currentTheme, setCurrentTheme] = useState(initialState.currentTheme);
   const [isDarkMode, setIsDarkMode] = useState(initialState.isDarkMode);
-  
-  // Consolidated useEffect for saving all relevant state to pamietnikAppStorage
+  const [theme, setTheme] = useState(isDarkMode ? 'dark' : 'light');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false); // Only declare once!
+
+  // 3. Effects
+  useEffect(() => {
+    setTheme(isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
+
   useEffect(() => {
     try {
       const appDataToSave = {
@@ -760,81 +950,98 @@ function App() {
     }
   }, [answers, currentTheme, isDarkMode]);
 
-  // Effect for applying dark mode class to HTML element (remains separate as it's a side effect of isDarkMode)
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    // We don't need to save isDarkMode to its own key anymore here.
-  }, [isDarkMode]);
-
-
-  const exportFullPDF = () => {
-    const content = document.createElement('div');
-    let html = '';
-
-    chapters.forEach(chapter => {
-      html += `<div class="pdf-chapter-container" style="page-break-after: always;">`; // Hint for page break
-      html += `<h1 style="color: #1f2937; font-size: 28px; margin-bottom: 25px; text-align: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">${chapter.title}</h1>`;
-      html += `<h2 style="color: #4b5563; font-size: 20px; margin-bottom: 20px; text-align: center;">${chapter.subtitle}</h2>`;
+  // 4. PDF Export function - keep this name consistent
+  const exportFullPDF = async () => {
+    // Create new PDF document
+    const doc = new jsPDF();
+    
+    // Set initial y position
+    let yPos = 20;
+    
+    // Add title
+    doc.setFontSize(24);
+    doc.text('Mój Pamiętnik', 105, yPos, { align: 'center' });
+    
+    // Process each chapter
+    chapters.forEach((chapter, chapterIndex) => {
+      yPos += 30;
       
-      chapter.questions.forEach((q, i) => {
-        const answer = answers[`${chapter.id}-${i}`] || 'Brak odpowiedzi';
-        html += `
-          <div style="margin-bottom: 25px; padding: 15px; border-left: 3px solid #d1d5db; background-color: #f9fafb;">
-            <h3 style="color: #374151; font-size: 18px; margin-bottom: 8px; font-weight: 600;">${q}</h3>
-            <p style="color: #1f2937; line-height: 1.7; font-size: 16px; white-space: pre-wrap; word-wrap: break-word;">
-              ${answer.replace(/\n/g, '<br>')}
-            </p>
-          </div>
-        `;
+      // Add page break if needed
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      // Add chapter title
+      doc.setFontSize(18);
+      doc.text(`${chapter.title}`, 20, yPos);
+      
+      yPos += 10;
+      doc.setFontSize(14);
+      doc.text(`${chapter.subtitle}`, 20, yPos);
+      
+      // Process questions and answers
+      chapter.questions.forEach((question, questionIndex) => {
+        yPos += 20;
+        
+        // Add page break if needed
+        if (yPos > 250) {
+          doc.addPage();
+          yPos = 20;
+        }
+        
+        // Add question
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text(`${questionIndex + 1}. ${question}`, 20, yPos);
+        
+        // Add answer
+        const answer = answers[`${chapter.id}-${questionIndex}`] || 'Brak odpowiedzi';
+        yPos += 10;
+        doc.setFont(undefined, 'normal');
+        
+        // Split long answers into multiple lines
+        const splitText = doc.splitTextToSize(answer, 170);
+        splitText.forEach(line => {
+          if (yPos > 250) {
+            doc.addPage();
+            yPos = 20;
+          }
+          doc.text(line, 20, yPos);
+          yPos += 7;
+        });
+        
+        yPos += 5;
       });
-      html += `</div>`;
+      
+      // Add page break between chapters
+      if (chapterIndex < chapters.length - 1) {
+        doc.addPage();
+        yPos = 20;
+      }
     });
 
-    content.innerHTML = html;
-    
-    const opt = {
-      margin: [1, 0.8, 1, 0.8], // top, right, bottom, left
-      filename: 'Moj_Pamietnik.pdf',
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, logging: true, letterRendering: true },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'], before: '.pdf-chapter-container' }
-    };
-
-    html2pdf().set(opt).from(content).save();
+    // Save the PDF
+    doc.save('moj-pamietnik.pdf');
   };
 
-  // Dodaj stan dla ustawień jeśli nie istnieje
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  // isDarkMode is already initialized above using the new structure
-
-  // The individual useEffect hooks for saving 'diary-answers', 'diary-theme', 
-  // and 'diary-dark-mode' are now removed and replaced by the consolidated one.
-
-  // The useEffect for applying the 'dark' class to documentElement based on isDarkMode
-  // is kept, as it's a direct side-effect of isDarkMode changing.
-  // The part about saving 'diary-dark-mode' within it has been removed.
+  // Define SettingsButton component inside App
+  const SettingsButton = () => (
+    <button
+      onClick={() => setIsSettingsOpen(true)}
+      className="fixed top-4 right-4 p-3 bg-white dark:bg-gray-800 
+                 rounded-full shadow-lg hover:shadow-xl transition-all z-50"
+    >
+      <SettingsIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+    </button>
+  );
 
   return (
-    <div>
-      {/* Dodaj przycisk ustawień, który będzie zawsze widoczny */}
-      <button
-        onClick={() => setIsSettingsOpen(true)}
-        className="fixed top-4 right-4 p-3 bg-white dark:bg-slate-800 
-                   rounded-full shadow-lg hover:shadow-xl transition-all z-50 border border-transparent dark:border-gray-700"
-        aria-label="Otwórz ustawienia"
-      >
-        <SettingsIcon className="w-6 h-6 text-gray-600 dark:text-gray-300" />
-      </button>
-
-      {/* Komponent ustawień */}
+    <div className={theme === 'dark' ? 'dark' : ''}>
+      <SettingsButton />
       <Settings 
-        theme={isDarkMode ? 'dark' : 'light'}
-        toggleTheme={() => setIsDarkMode(!isDarkMode)}
+        theme={theme}
+        toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         currentTheme={currentTheme}
@@ -891,7 +1098,7 @@ function App() {
               answers={answers}
               setAnswers={setAnswers}
               theme={themes[currentTheme]}
-              exportToPDF={exportFullPDF} // Pass the new export function
+              exportToPDF={exportFullPDF} // Match the function name here
             />
           </motion.div>
         )}
@@ -905,7 +1112,7 @@ function App() {
             setCurrentChapter(chapter);
             setView("question");
           }}
-          theme={themes[currentTheme]} // Add theme prop
+          theme={themes[currentTheme]}
         />
       )}
     </div>
