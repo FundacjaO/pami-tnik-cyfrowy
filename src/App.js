@@ -9,7 +9,8 @@ import {
   Download, 
   Settings as SettingsIcon,
   TreeDeciduous,
-  Calendar
+  Calendar,
+  Camera
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { jsPDF } from 'jspdf';
@@ -18,6 +19,7 @@ import Settings from './components/Settings';
 import MyStoryView from './components/MyStoryView';
 import FamilyTreeView from './components/FamilyTreeView';
 import FamilyTimeline from './components/FamilyTimeline';
+import FamilyGalleryV2 from './components/FamilyGallery/FamilyGalleryV2';
 import { themes } from './constants/themes';
 
 const chapters = [
@@ -899,7 +901,7 @@ function App() {
 
   // 2. Initialize states
   const initialState = loadInitialState();
-  const [view, setView] = useState("welcome"); // "welcome", "chapters", "question", "story", "familyTree"
+  const [view, setView] = useState("welcome"); // "welcome", "chapters", "question", "story", "familyTree", "familyTimeline", "familyGallery"
   const [currentChapter, setCurrentChapter] = useState(null);
   const [answers, setAnswers] = useState(initialState.answers);
   const [currentTheme, setCurrentTheme] = useState(initialState.currentTheme);
@@ -1042,6 +1044,21 @@ function App() {
       </div>
       <div className="group relative">
         <button
+          onClick={() => setView('familyGallery')}
+          className="p-3 bg-white dark:bg-gray-800 
+                    rounded-full shadow-lg hover:shadow-xl transition-all"
+          aria-label="Galeria rodzinna"
+        >
+          <Camera className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+        </button>
+        <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white 
+                      px-3 py-1 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 
+                      transition-opacity duration-200 pointer-events-none z-50">
+          Galeria rodzinna
+        </div>
+      </div>
+      <div className="group relative">
+        <button
           onClick={() => setIsSettingsOpen(true)}
           className="p-3 bg-white dark:bg-gray-800 
                     rounded-full shadow-lg hover:shadow-xl transition-all"
@@ -1173,6 +1190,21 @@ function App() {
             transition={{ duration: 0.3 }}
           >
             <FamilyTimeline
+              theme={themes[currentTheme]}
+              onBack={() => setView("chapters")}
+            />
+          </motion.div>
+        )}
+
+        {view === "familyGallery" && (
+          <motion.div
+            key="familyGallery"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.3 }}
+          >
+            <FamilyGalleryV2
               theme={themes[currentTheme]}
               onBack={() => setView("chapters")}
             />
