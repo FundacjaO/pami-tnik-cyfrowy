@@ -8,14 +8,17 @@ import {
   ChevronRight, 
   Download, 
   Settings as SettingsIcon,
-  MoreHorizontal,
-  X 
+  TreeDeciduous,
+  Calendar
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import html2pdf from 'html2pdf.js';
 import { jsPDF } from 'jspdf';
 import './App.css';
 import Settings from './components/Settings';
+import MyStoryView from './components/MyStoryView';
+import FamilyTreeView from './components/FamilyTreeView';
+import FamilyTimeline from './components/FamilyTimeline';
+import { themes } from './constants/themes';
 
 const chapters = [
   {
@@ -249,6 +252,13 @@ const chapters = [
       "Jak wyrażasz miłość do bliskich?",
       "Co daje Ci nadzieję i siłę?"
     ]
+  },
+  {
+    id: 11,
+    title: "Moja opowieść",
+    subtitle: "Kompletna historia wszystkich odpowiedzi",
+    color: "from-purple-100 to-pink-100",
+    isStory: true // Specjalna flaga do identyfikacji
   }
 ];
 
@@ -264,6 +274,7 @@ const timelineIcons = {
   "Wdzięczność": "🙏",
   "Korzenie Rodziny": "🌳",
   "Dziedzictwo": "🕊️",
+  "Moja opowieść": "📖",
   "Kalendarz": "📅"
 };
 
@@ -279,55 +290,10 @@ const chapterQuotes = {
   "Wdzięczność": "Mądrość to umiejętność słuchania serca i rozumu jednocześnie.",
   "Korzenie Rodziny": "Historia rodziny to opowieść pisana miłością pokoleń.",
   "Dziedzictwo": "Prawdziwe dziedzictwo zostaje w sercach tych, którzy nas kochają.",
+  "Moja opowieść": "Każda historia jest wyjątkowa i zasługuje na to, by być opowiedziana.",
   "Kalendarz": "Planowanie to pierwszy krok do tworzenia wspomnień."
 };
 
-const themes = {
-  classic: {
-    name: 'Klasyczny',
-    description: 'Elegancki i ponadczasowy',
-    welcome: 'from-amber-50 to-amber-100',
-    buttons: 'from-amber-500 to-amber-600',
-    accent: 'amber',
-    cardStyle: 'border-amber-100',
-    iconStyle: 'text-amber-600',
-    quoteStyle: 'text-amber-800',
-    font: 'font-serif'
-  },
-  modern: {
-    name: 'Nowoczesny',
-    description: 'Minimalistyczny i świeży',
-    welcome: 'from-blue-50 to-indigo-100',
-    buttons: 'from-blue-500 to-indigo-600',
-    accent: 'blue',
-    cardStyle: 'border-blue-100',
-    iconStyle: 'text-blue-600',
-    quoteStyle: 'text-blue-800',
-    font: 'font-sans'
-  },
-  retro: {
-    name: 'Retro',
-    description: 'Nostalgiczny i ciepły',
-    welcome: 'from-rose-50 to-rose-100',
-    buttons: 'from-rose-500 to-rose-600',
-    accent: 'rose',
-    cardStyle: 'border-rose-100',
-    iconStyle: 'text-rose-600',
-    quoteStyle: 'text-rose-800',
-    font: 'font-serif'
-  },
-  nature: {
-    name: 'Natura',
-    description: 'Organiczny i spokojny',
-    welcome: 'from-emerald-50 to-emerald-100',
-    buttons: 'from-emerald-500 to-emerald-600',
-    accent: 'emerald',
-    cardStyle: 'border-emerald-100',
-    iconStyle: 'text-emerald-600',
-    quoteStyle: 'text-emerald-800',
-    font: 'font-sans'
-  }
-};
 
 function WelcomeScreen({ onStart, theme }) {
   // Existing states
@@ -589,7 +555,7 @@ function ChapterOverview({ onSelectChapter, answers, theme }) {
                 {/* Card content */}
                 <div className="relative group-hover:opacity-0 transition-opacity duration-200">
                   <div className="flex items-center space-x-3 mb-4">
-                    <span className="text-2xl">{timelineIcons[chapter.title]}</span> {/* Icons are emojis, color is inherent */}
+                    <span className="text-2xl">{timelineIcons[chapter.title]}</span>
                     <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
                       {chapter.title}
                     </h3>
@@ -598,18 +564,26 @@ function ChapterOverview({ onSelectChapter, answers, theme }) {
                     {chapter.subtitle}
                   </p>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500 dark:text-gray-500">
-                      {Object.keys(answers).filter(key => key.startsWith(`${chapter.id}-`)).length}/{chapter.questions.length} odpowiedzi
-                    </span>
-                    <div className="w-16 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                      <div 
-                        className="h-1 bg-gradient-to-r from-green-400 to-green-500 dark:from-green-500 dark:to-green-600 rounded-full"
-                        style={{ 
-                          width: `${(Object.keys(answers).filter(key => 
-                            key.startsWith(`${chapter.id}-`)).length / chapter.questions.length) * 100}%` 
-                        }}
-                      />
-                    </div>
+                    {chapter.isStory ? (
+                      <span className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                        Kompletna opowieść
+                      </span>
+                    ) : (
+                      <>
+                        <span className="text-xs text-gray-500 dark:text-gray-500">
+                          {Object.keys(answers).filter(key => key.startsWith(`${chapter.id}-`)).length}/{chapter.questions.length} odpowiedzi
+                        </span>
+                        <div className="w-16 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div 
+                            className="h-1 bg-gradient-to-r from-green-400 to-green-500 dark:from-green-500 dark:to-green-600 rounded-full"
+                            style={{ 
+                              width: `${(Object.keys(answers).filter(key => 
+                                key.startsWith(`${chapter.id}-`)).length / chapter.questions?.length || 0) * 100}%` 
+                            }}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -763,7 +737,10 @@ function QuestionInterface({ chapter, onBack, answers, setAnswers, theme, export
 function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
   const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
   const [showMoreButton, setShowMoreButton] = useState(false);
-  const [visibleChapters, setVisibleChapters] = useState(chapters);
+  const [visibleChapters, setVisibleChapters] = useState([]);
+
+  // Filter out story chapters (like "Moja opowieść")
+  const regularChapters = chapters.filter(chapter => !chapter.isStory);
 
   const MAX_VISIBLE_CHAPTERS_MOBILE = 4; // Number of chapters to show before "More"
   const CHAPTER_THRESHOLD_FOR_MORE_BUTTON = 5; // Min chapters to trigger "More" button
@@ -771,19 +748,19 @@ function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
   useEffect(() => {
     const handleResize = () => {
       const isMobile = window.matchMedia("(max-width: 768px)").matches;
-      if (isMobile && chapters.length > CHAPTER_THRESHOLD_FOR_MORE_BUTTON) {
+      if (isMobile && regularChapters.length > CHAPTER_THRESHOLD_FOR_MORE_BUTTON) {
         setShowMoreButton(true);
-        setVisibleChapters(chapters.slice(0, MAX_VISIBLE_CHAPTERS_MOBILE));
+        setVisibleChapters(regularChapters.slice(0, MAX_VISIBLE_CHAPTERS_MOBILE));
       } else {
         setShowMoreButton(false);
-        setVisibleChapters(chapters);
+        setVisibleChapters(regularChapters);
       }
     };
 
     handleResize(); // Initial check
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [chapters]);
+  }, [regularChapters]);
 
   return (
     <>
@@ -824,7 +801,7 @@ function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
                   <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center 
                                 rounded-full text-xl md:text-2xl bg-white dark:bg-gray-700 /* Darker icon bg */
                                 shadow-md group-hover:shadow-lg transition-all dark:border dark:border-gray-600">
-                    <MoreHorizontal className="w-6 h-6 text-gray-500 dark:text-gray-300" />
+                    •••
                   </div>
                   <span className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400 group-hover:dark:text-gray-200
                                 mt-1 whitespace-nowrap font-medium">
@@ -863,11 +840,11 @@ function Timeline({ chapters, activeChapter, onSelectChapter, theme }) {
                   className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                   aria-label="Zamknij modal"
                 >
-                  <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                  <span className="text-lg text-gray-600 dark:text-gray-300">✕</span>
                 </button>
               </div>
               <ul className="overflow-y-auto space-y-1 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-slate-700">
-                {chapters.map(chapterItem => ( // Renamed to avoid conflict with outer 'chapter'
+                {regularChapters.map(chapterItem => ( // Use regularChapters instead of chapters
                   <li key={chapterItem.id} >
                     <button
                       onClick={() => {
@@ -922,7 +899,7 @@ function App() {
 
   // 2. Initialize states
   const initialState = loadInitialState();
-  const [view, setView] = useState("welcome");
+  const [view, setView] = useState("welcome"); // "welcome", "chapters", "question", "story", "familyTree"
   const [currentChapter, setCurrentChapter] = useState(null);
   const [answers, setAnswers] = useState(initialState.answers);
   const [currentTheme, setCurrentTheme] = useState(initialState.currentTheme);
@@ -952,15 +929,16 @@ function App() {
 
   // 4. PDF Export function - keep this name consistent
   const exportFullPDF = async () => {
-    // Create new PDF document
-    const doc = new jsPDF();
-    
-    // Set initial y position
-    let yPos = 20;
-    
-    // Add title
-    doc.setFontSize(24);
-    doc.text('Mój Pamiętnik', 105, yPos, { align: 'center' });
+    try {
+      // Create new PDF document
+      const doc = new jsPDF();
+      
+      // Set initial y position
+      let yPos = 20;
+      
+      // Add title
+      doc.setFontSize(24);
+      doc.text('Mój Pamiętnik', 105, yPos, { align: 'center' });
     
     // Process each chapter
     chapters.forEach((chapter, chapterIndex) => {
@@ -1021,24 +999,68 @@ function App() {
       }
     });
 
-    // Save the PDF
-    doc.save('moj-pamietnik.pdf');
+      // Save the PDF
+      doc.save('moj-pamietnik.pdf');
+    } catch (error) {
+      console.error('Błąd podczas eksportu PDF:', error);
+      alert('Wystąpił błąd podczas eksportu PDF. Spróbuj ponownie.');
+    }
   };
 
-  // Define SettingsButton component inside App
-  const SettingsButton = () => (
-    <button
-      onClick={() => setIsSettingsOpen(true)}
-      className="fixed top-4 right-4 p-3 bg-white dark:bg-gray-800 
-                 rounded-full shadow-lg hover:shadow-xl transition-all z-50"
-    >
-      <SettingsIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-    </button>
+  // Define HeaderButtons component inside App
+  const HeaderButtons = () => (
+    <div className="fixed top-4 right-4 flex space-x-3 z-50">
+      <div className="group relative">
+        <button
+          onClick={() => setView('familyTimeline')}
+          className="p-3 bg-white dark:bg-gray-800 
+                    rounded-full shadow-lg hover:shadow-xl transition-all"
+          aria-label="Kamienie milowe"
+        >
+          <Calendar className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+        </button>
+        <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white 
+                      px-3 py-1 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 
+                      transition-opacity duration-200 pointer-events-none z-50">
+          Kamienie milowe
+        </div>
+      </div>
+      <div className="group relative">
+        <button
+          onClick={() => setView('familyTree')}
+          className="p-3 bg-white dark:bg-gray-800 
+                    rounded-full shadow-lg hover:shadow-xl transition-all"
+          aria-label="Drzewo rodzinne"
+        >
+          <TreeDeciduous className="w-6 h-6 text-green-600 dark:text-green-400" />
+        </button>
+        <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white 
+                      px-3 py-1 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 
+                      transition-opacity duration-200 pointer-events-none z-50">
+          Drzewo rodzinne
+        </div>
+      </div>
+      <div className="group relative">
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="p-3 bg-white dark:bg-gray-800 
+                    rounded-full shadow-lg hover:shadow-xl transition-all"
+          aria-label="Ustawienia"
+        >
+          <SettingsIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+        </button>
+        <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white 
+                      px-3 py-1 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 
+                      transition-opacity duration-200 pointer-events-none z-50">
+          Ustawienia
+        </div>
+      </div>
+    </div>
   );
 
   return (
     <div className={theme === 'dark' ? 'dark' : ''}>
-      <SettingsButton />
+      <HeaderButtons />
       <Settings 
         theme={theme}
         toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -1046,6 +1068,8 @@ function App() {
         onClose={() => setIsSettingsOpen(false)}
         currentTheme={currentTheme}
         setCurrentTheme={setCurrentTheme}
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
       />
 
       <AnimatePresence mode="wait">
@@ -1074,12 +1098,16 @@ function App() {
           >
             <ChapterOverview 
               onSelectChapter={(chapter) => {
-                setCurrentChapter(chapter);
-                setView("question");
+                if (chapter.isStory) {
+                  setView("story");
+                } else {
+                  setCurrentChapter(chapter);
+                  setView("question");
+                }
               }}
               answers={answers} 
               onOpenSettings={() => setIsSettingsOpen(true)}
-              theme={themes[currentTheme]} // Add theme prop
+              theme={themes[currentTheme]}
             />
           </motion.div>
         )}
@@ -1098,7 +1126,55 @@ function App() {
               answers={answers}
               setAnswers={setAnswers}
               theme={themes[currentTheme]}
-              exportToPDF={exportFullPDF} // Match the function name here
+              exportToPDF={exportFullPDF}
+            />
+          </motion.div>
+        )}
+
+        {view === "story" && (
+          <motion.div
+            key="story"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.3 }}
+          >
+            <MyStoryView
+              chapters={chapters}
+              answers={answers}
+              setAnswers={setAnswers}
+              theme={themes[currentTheme]}
+              onBack={() => setView("chapters")}
+            />
+          </motion.div>
+        )}
+
+        {view === "familyTree" && (
+          <motion.div
+            key="familyTree"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.3 }}
+          >
+            <FamilyTreeView
+              theme={themes[currentTheme]}
+              onBack={() => setView("chapters")}
+            />
+          </motion.div>
+        )}
+
+        {view === "familyTimeline" && (
+          <motion.div
+            key="familyTimeline"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.3 }}
+          >
+            <FamilyTimeline
+              theme={themes[currentTheme]}
+              onBack={() => setView("chapters")}
             />
           </motion.div>
         )}

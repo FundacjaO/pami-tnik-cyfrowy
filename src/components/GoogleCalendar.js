@@ -4,9 +4,9 @@ import { Calendar } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
 const SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
-// Fix swapped credentials
-const CLIENT_ID = '255294775729-7n9udt134iujd5f6fej0ovf6e7fnj036.apps.googleusercontent.com';
-const API_KEY = 'AIzaSyArTtihFnYGx5xbqHOkMvbSugzYTdQ0aYM';
+// Use environment variables for security
+const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+const API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
 
 export default function GoogleCalendar() {
   const [isInitialized, setIsInitialized] = useState(false);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export function AddQuestionModal({ isOpen, onClose, onAdd, theme }) {
   const [newQuestion, setNewQuestion] = useState('');
@@ -37,13 +37,12 @@ export function AddQuestionModal({ isOpen, onClose, onAdd, theme }) {
         <div className="flex justify-between items-center mb-6">
           <h3 className={`text-xl font-semibold text-gray-900 dark:text-gray-100 ${theme.font}`}>
             Dodaj własne pytanie
-          </h3>
-          <button
+          </h3>          <button
             onClick={onClose}
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 
                      text-gray-500 dark:text-gray-400 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <span className="text-lg">✕</span>
           </button>
         </div>
 

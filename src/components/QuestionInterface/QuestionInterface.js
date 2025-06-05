@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, AlertCircle, XCircle } from 'lucide-react';
+import { Plus, AlertCircle } from 'lucide-react';
 import { Question } from '../Question/Question';
 import { HiddenQuestions } from '../Question/HiddenQuestions';
 import { AddQuestionModal } from '../Question/AddQuestionModal';
@@ -146,13 +146,12 @@ export function QuestionInterface({ chapter, answers, setAnswers, theme, onBack 
               <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
               <div className="flex-grow">
                 <p className="text-red-700 dark:text-red-300">{error}</p>
-              </div>
-              <button
+              </div>              <button
                 onClick={() => setError(null)}
                 className="text-red-400 hover:text-red-600 dark:text-red-500 
                          dark:hover:text-red-300"
               >
-                <XCircle className="w-5 h-5" />
+                <span className="text-lg">✕</span>
               </button>
             </div>
           </motion.div>

@@ -1,27 +1,24 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Star, MoreVertical, Info } from 'lucide-react';
-
-// Move tips array directly into component for now
-const TIPS = [
-  "Nie musisz odpowiadać od razu. Zapisz myśli na później.",
-  "Spróbuj opisać to uczucie obrazem, dźwiękiem albo zapachem.",
-  "To pytanie może być trudne — pozwól sobie na pauzę.",
-  "Nie ma złych odpowiedzi. Twoje wspomnienia są ważne.",
-  "Pomyśl, jak opowiedział(a)byś to bliskiej osobie.",
-  // ... rest of the tips
-];
+import { TIPS } from '../../constants/tips';
+import { AIParaphraseWidget } from './AIParaphraseWidget';
+import { useFeatureFlag, FEATURE_FLAGS } from '../../constants/features';
 
 export function Question({ 
   question,
   answer,
   onAnswerChange,
   onEmotionToggle,
-  emotions = { touched: false, favorite: false }
+  emotions = { touched: false, favorite: false },
+  theme
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const [showTip, setShowTip] = useState(false);
   const [tip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
+  
+  // Sprawdź dostęp do funkcji premium
+  const { isEnabled: aiParaphraseEnabled } = useFeatureFlag(FEATURE_FLAGS.AI_PARAPHRASE_WIDGET);
 
   return (
     <motion.div className="bg-white dark:bg-gray-800 rounded-2xl p-6 mb-6 shadow-lg">
@@ -82,6 +79,17 @@ export function Question({
                  text-gray-800 dark:text-gray-100"
       />
 
+      {/* AI Paraphrase Widget - tylko dla użytkowników premium */}
+      {aiParaphraseEnabled && answer && (
+        <div className="mb-4">
+          <AIParaphraseWidget
+            text={answer}
+            onParaphraseSelect={onAnswerChange}
+            theme={theme}
+          />
+        </div>
+      )}
+
       {/* Emotion buttons */}
       <div className="flex items-center space-x-3">
         <button
@@ -117,9 +125,3 @@ export function Question({
     </motion.div>
   );
 }
-
-/* public/index.html */
-<head>
-  <!-- ... -->
-  <div id="tooltip-portal"></div>
-</head>
